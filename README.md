@@ -15,6 +15,7 @@ A modern Learning Management System API built with [Hono](https://hono.dev/), [B
 
 - **Runtime**: [Bun](https://bun.sh/)
 - **Framework**: [Hono](https://hono.dev/)
+- **Database**: [Drizzle ORM](https://orm.drizzle.team/)
 - **OpenAPI**: [@hono/zod-openapi](https://github.com/honojs/hono/tree/main/packages/zod-openapi)
 - **Validation**: [Zod](https://zod.dev/)
 - **Linting/Formatting**: [Biome](https://biomejs.dev/)
@@ -65,6 +66,10 @@ http://localhost:3000
 | `bun run format` | Check code formatting |
 | `bun run format:fix` | Format code automatically |
 | `bun run check` | Run comprehensive code check |
+| `bun run db:generate` | Generate database migrations |
+| `bun run db:migrate` | Run database migrations |
+| `bun run db:push` | Push schema changes to database |
+| `bun run db:studio` | Open Drizzle Studio for database management |
 
 ## 🔧 Configuration
 
@@ -74,7 +79,27 @@ Create a `.env` file in the root directory:
 
 ```env
 PORT=3000
+DATABASE_URL=postgresql://username:password@localhost:5432/lrnr
+# Or for SQLite:
+# DATABASE_URL=file:./dev.db
 # Add other environment variables as needed
+```
+
+### Database Configuration
+
+The project uses Drizzle ORM for database operations. Create a `drizzle.config.ts` file in the root directory:
+
+```typescript
+import { defineConfig } from 'drizzle-kit';
+
+export default defineConfig({
+  schema: './src/db/schema.ts',
+  out: './drizzle',
+  dialect: 'postgresql', // or 'sqlite' | 'mysql'
+  dbCredentials: {
+    url: process.env.DATABASE_URL!,
+  },
+});
 ```
 
 ### TypeScript Configuration
@@ -164,6 +189,7 @@ This project is licensed under the [MIT License](LICENSE).
 - [Bun](https://bun.sh/) - The all-in-one JavaScript runtime
 - [Biome](https://biomejs.dev/) - Fast formatter and linter
 - [Zod](https://zod.dev/) - TypeScript-first schema validation
+- [drizzle-orm](https://orm.drizzle.team/) - Type-safe ORM for 
 - [stoker](https://github.com/w3cj/stoker) - For utilities for hono and @hono/zod-openapi
 
 ---
