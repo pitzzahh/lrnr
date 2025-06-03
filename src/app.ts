@@ -3,6 +3,7 @@ import { notFound, onError } from 'stoker/middlewares';
 import { logger } from '@/pino-logger';
 
 const app = new OpenAPIHono();
+app.use(logger());
 
 app.get("/", (c) => {
   return c.text("Hello, world!");
@@ -14,7 +15,5 @@ app.get("/health", (c) => {
 
 app.notFound(notFound);
 app.onError(onError);
-
-app.use(logger())
 
 export default app;
