@@ -9,10 +9,15 @@
     "lint:fix": "biome check --write .",
     "format": "biome format .",
     "format:fix": "biome format --write .",
-    "check": "biome check ."
+    "check": "biome check .",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@hono/zod-openapi": "^0.19.8",
+    "drizzle-orm": "^0.44.1",
     "hono": "^4.7.11",
     "hono-pino": "^0.8.0",
     "pino": "^9.7.0",
@@ -22,6 +27,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "drizzle-kit": "^0.31.1"
   }
 }
