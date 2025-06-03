@@ -18,6 +18,8 @@ A modern Learning Management System API built with [Hono](https://hono.dev/), [B
 - **OpenAPI**: [@hono/zod-openapi](https://github.com/honojs/hono/tree/main/packages/zod-openapi)
 - **Validation**: [Zod](https://zod.dev/)
 - **Linting/Formatting**: [Biome](https://biomejs.dev/)
+- **Documentation**: [Scalar](https://scalar.dev/)
+- **Utilities**: [stoker](https://github.com/w3cj/stoker)
 - **Language**: TypeScript
 
 ## 🚀 Quick Start
@@ -63,19 +65,6 @@ http://localhost:3000
 | `bun run format` | Check code formatting |
 | `bun run format:fix` | Format code automatically |
 | `bun run check` | Run comprehensive code check |
-
-## 📁 Project Structure
-
-```
-lrnr/
-├── src/
-│   └── index.ts          # Main application entry point
-├── biome.json            # Biome configuration
-├── bun.lock              # Bun lockfile
-├── package.json          # Project dependencies and scripts
-├── README.md             # Project documentation
-└── tsconfig.json         # TypeScript configuration
-```
 
 ## 🔧 Configuration
 
