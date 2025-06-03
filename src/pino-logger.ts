@@ -9,8 +9,5 @@ export function logger() {
       translateTime: 'SYS:standard',
       ignore: 'pid,hostname'
     })),
-    http: {
-      referRequestIdKey: 'referer',
-    }
   });
 }
