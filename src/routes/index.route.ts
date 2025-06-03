@@ -6,6 +6,7 @@ const router = createRouter()
     createRoute({
       method: "get",
       path: "/",
+      tags: ["Root"],
       responses: {
         200: {
           description: "lrnr API",
