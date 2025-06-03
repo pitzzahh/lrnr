@@ -1,4 +1,4 @@
-import type { AppOpenAPI } from "@/lib/types/app";
+import type { AppOpenAPI } from "@/lib/types";
 import pj from "../../package.json"
 import { Scalar } from "@scalar/hono-api-reference";
 import { createMarkdownFromOpenApi } from "@scalar/openapi-to-markdown";
