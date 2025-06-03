@@ -175,6 +175,7 @@ This project is licensed under the [MIT License](LICENSE).
 - [Bun](https://bun.sh/) - The all-in-one JavaScript runtime
 - [Biome](https://biomejs.dev/) - Fast formatter and linter
 - [Zod](https://zod.dev/) - TypeScript-first schema validation
+- [stoker](https://github.com/w3cj/stoker) - For utilities for hono and @hono/zod-openapi
 
 ---
 
