@@ -4,7 +4,7 @@ import { logger } from '@/hooks/pino-logger';
 import { AppBindings } from '@/lib/types/app-bindings';
 
 export default function createApp() {
-  const app = new OpenAPIHono<AppBindings>();
+  const app = new OpenAPIHono<AppBindings>({ strict: false });
   app.use(logger());
   app.use(serveEmojiFavicon("📑"))
 
