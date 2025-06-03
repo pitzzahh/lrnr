@@ -1,11 +1,6 @@
-import { OpenAPIHono } from '@hono/zod-openapi';
-import { notFound, onError, serveEmojiFavicon } from 'stoker/middlewares';
-import { logger } from '@/hooks/pino-logger';
-import { AppBindings } from '@/types/app-bindings';
+import createApp from '@/lib/create-app';
 
-const app = new OpenAPIHono<AppBindings>();
-app.use(logger());
-app.use(serveEmojiFavicon("📑"))
+const app = createApp();
 
 app.get("/", (c) => {
   c.var.logger.info("Root endpoint accessed");
@@ -15,8 +10,5 @@ app.get("/", (c) => {
 app.get("/health", (c) => {
   throw new Error("This is a test error");
 });
-
-app.notFound(notFound);
-app.onError(onError);
 
 export default app;
