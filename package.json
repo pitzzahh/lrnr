@@ -12,7 +12,9 @@
     "check": "biome check ."
   },
   "dependencies": {
-    "hono": "^4.7.11"
+    "@hono/zod-openapi": "^0.19.8",
+    "hono": "^4.7.11",
+    "zod": "^3.25.49"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
