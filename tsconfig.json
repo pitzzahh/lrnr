@@ -3,6 +3,8 @@
 		"strict": true,
 		"jsx": "react-jsx",
 		"jsxImportSource": "hono/jsx",
+		"resolveJsonModule": true,
+		"allowSyntheticDefaultImports": true,
 		"paths": {
 			"@/*": [
 				"./src/*"
