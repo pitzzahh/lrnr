@@ -1,7 +1,8 @@
 import { serve } from 'bun';
 import app from '@/app';
+import env from '@/env';
 
-const port = process.env.PORT || 3000;
+const port = env.PORT;
 console.log(`Server is running on http://localhost:${port}`);
 
 serve({
