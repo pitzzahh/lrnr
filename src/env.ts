@@ -13,4 +13,18 @@ const EnvSchema = z.object({
   DATABASE_URL: z.string().url().optional(),
 });
 
-export default EnvSchema.parse(process.env);
+export type env = z.infer<typeof EnvSchema>;
+
+let env: env;
+
+try {
+  env = EnvSchema.parse(process.env);
+}
+catch (err) {
+  const error = err as z.ZodError;
+  console.error('Environment variable validation failed:', error.errors);
+  console.error(error.flatten());
+  process.exit(1);
+}
+
+export default env;
