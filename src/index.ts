@@ -1,9 +1,16 @@
-import { Hono } from 'hono'
+import { OpenAPIHono } from '@hono/zod-openapi';
+import { serve } from 'bun';
 
-const app = new Hono()
+const app = new OpenAPIHono();
 
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
+app.get("/", (c) => {
+  return c.text("Hello, world!");
 })
 
-export default app
+const port = process.env.PORT || 3000;
+console.log(`Server is running on http://localhost:${port}`);
+
+serve({
+  fetch: app.fetch,
+  port: Number(port),
+})
