@@ -1,10 +1,11 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
-import { notFound, onError } from 'stoker/middlewares';
-import { logger } from '@/pino-logger';
+import { notFound, onError, serveEmojiFavicon } from 'stoker/middlewares';
+import { logger } from '@/hooks/pino-logger';
 import { AppBindings } from '@/types/app-bindings';
 
 const app = new OpenAPIHono<AppBindings>();
 app.use(logger());
+app.use(serveEmojiFavicon("📑"))
 
 app.get("/", (c) => {
   c.var.logger.info("Root endpoint accessed");
