@@ -5,7 +5,7 @@ const router = createRouter()
   .openapi(
     createRoute({
       method: "get",
-      path: "/llms.txt",
+      path: "/llms",
       tags: ["Documentation"],
       summary: "Get API documentation in LLMs.txt format",
       description: "Returns the API documentation in markdown format suitable for LLMs",
