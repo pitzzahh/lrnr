@@ -1,9 +1,11 @@
 import db from '@/db'
 import type { AppRouteHandler } from '@/lib/types'
-import type { ListRoute, CreateRoute, GetOneRoute } from './users.routes'
+import type { ListRoute, CreateRoute, GetOneRoute, PatchRoute } from './users.routes'
 import { users } from '@/db/schema'
 import * as HttpStatusCodes from 'stoker/http-status-codes'
 import * as HttpStatusPhrases from 'stoker/http-status-phrases'
+import { eq } from 'drizzle-orm'
+import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from '@/lib/constants'
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
 	return c.json(await db.query.users.findMany())
@@ -31,4 +33,41 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
 		)
 	}
 	return c.json(user, HttpStatusCodes.OK)
+}
+
+export const patch: AppRouteHandler<PatchRoute> = async (c) => {
+	const { id } = c.req.valid('param')
+	const updates = c.req.valid('json')
+
+	if (Object.keys(updates).length === 0) {
+		return c.json(
+			{
+				success: false,
+				error: {
+					issues: [
+						{
+							code: ZOD_ERROR_CODES.INVALID_UPDATES,
+							path: [],
+							message: ZOD_ERROR_MESSAGES.NO_UPDATES,
+						},
+					],
+					name: 'ZodError',
+				},
+			},
+			HttpStatusCodes.UNPROCESSABLE_ENTITY
+		)
+	}
+
+	const [updated_user] = await db.update(users).set(updates).where(eq(users.id, id)).returning()
+
+	if (!updated_user) {
+		return c.json(
+			{
+				message: HttpStatusPhrases.NOT_FOUND,
+			},
+			HttpStatusCodes.NOT_FOUND
+		)
+	}
+
+	return c.json(updated_user, HttpStatusCodes.OK)
 }

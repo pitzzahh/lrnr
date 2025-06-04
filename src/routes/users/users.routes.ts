@@ -1,4 +1,4 @@
-import { INSERT_USERS_SCHEMA, SELECT_USERS_SCHEMA } from '@/db/schema/users'
+import { INSERT_USERS_SCHEMA, SELECT_USERS_SCHEMA, PATCH_USERS_SCHEMA } from '@/db/schema/users'
 import { NOT_FOUND_SCHEMA } from '@/lib/constants'
 import { createRoute, z } from '@hono/zod-openapi'
 import * as HttpStatusCodes from 'stoker/http-status-codes'
@@ -49,6 +49,25 @@ export const getOne = createRoute({
 	},
 })
 
+export const patch = createRoute({
+	path: `${path}/{id}`,
+	method: 'patch',
+	request: {
+		params: IdUUIDParamsSchema,
+		body: jsonContentRequired(PATCH_USERS_SCHEMA, 'The user to update'),
+	},
+	tags,
+	responses: {
+		[HttpStatusCodes.OK]: jsonContent(SELECT_USERS_SCHEMA, 'The updated user'),
+		[HttpStatusCodes.NOT_FOUND]: jsonContent(NOT_FOUND_SCHEMA, 'Requested user not found'),
+		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+			createErrorSchema(PATCH_USERS_SCHEMA).or(createErrorSchema(IdUUIDParamsSchema)),
+			'The validation error(s)'
+		),
+	},
+})
+
 export type ListRoute = typeof list
 export type CreateRoute = typeof create
 export type GetOneRoute = typeof getOne
+export type PatchRoute = typeof patch
