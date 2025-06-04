@@ -12,9 +12,7 @@
 		"skipLibCheck": true,
 		"allowSyntheticDefaultImports": true,
 		"paths": {
-			"@/*": [
-				"./src/*"
-			]
+			"@/*": ["./src/*"]
 		}
 	}
 }
