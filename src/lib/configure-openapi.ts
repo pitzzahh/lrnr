@@ -6,17 +6,6 @@ import pj from '../../package.json'
 const OPEN_API_VERSION = '3.1.0'
 
 export default async function configureOpenAPI(app: AppOpenAPI) {
-	const content = app.getOpenAPI31Document({
-		openapi: OPEN_API_VERSION,
-		info: { title: 'Example', version: 'v1' },
-	})
-
-	const markdown = await createMarkdownFromOpenApi(JSON.stringify(content))
-
-	app.get('/llms.txt', async (c) => {
-		return c.text(markdown)
-	})
-
 	app.doc('/doc', {
 		openapi: OPEN_API_VERSION,
 		info: {
@@ -37,4 +26,19 @@ export default async function configureOpenAPI(app: AppOpenAPI) {
 			},
 		})
 	)
+
+	const content = app.getOpenAPI31Document({
+		openapi: OPEN_API_VERSION,
+		info: {
+			title: pj.name,
+			description: pj.description,
+			version: pj.version,
+		},
+	})
+
+	const markdown = await createMarkdownFromOpenApi(JSON.stringify(content))
+
+	app.get('/llms.txt', async (c) => {
+		return c.text(markdown)
+	})
 }
