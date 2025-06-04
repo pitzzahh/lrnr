@@ -3,9 +3,11 @@ import { Scalar } from '@scalar/hono-api-reference'
 import { createMarkdownFromOpenApi } from '@scalar/openapi-to-markdown'
 import pj from '../../package.json'
 
+const OPEN_API_VERSION = '3.1.0'
+
 export default async function configureOpenAPI(app: AppOpenAPI) {
 	const content = app.getOpenAPI31Document({
-		openapi: '3.1.0',
+		openapi: OPEN_API_VERSION,
 		info: { title: 'Example', version: 'v1' },
 	})
 
@@ -16,7 +18,7 @@ export default async function configureOpenAPI(app: AppOpenAPI) {
 	})
 
 	app.doc('/doc', {
-		openapi: '3.0.0',
+		openapi: OPEN_API_VERSION,
 		info: {
 			title: pj.name,
 			description: pj.description,
