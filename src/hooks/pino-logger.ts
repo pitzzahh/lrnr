@@ -1,6 +1,6 @@
 import { pinoLogger } from 'hono-pino'
 import pino from 'pino'
-import pretty = require('pino-pretty')
+import pretty from 'pino-pretty'
 import env from '@/env'
 
 export function logger() {
