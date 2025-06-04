@@ -1,13 +1,13 @@
 import {
 	INSERT_COURSES_SCHEMA,
-	SELECT_COURSES_SCHEMA,
 	PATCH_COURSES_SCHEMA,
+	SELECT_COURSES_SCHEMA,
 } from '@/db/schema/courses'
 import { NOT_FOUND_SCHEMA } from '@/lib/constants'
 import { createRoute, z } from '@hono/zod-openapi'
 import * as HttpStatusCodes from 'stoker/http-status-codes'
 import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers'
-import { createErrorSchema, IdUUIDParamsSchema } from 'stoker/openapi/schemas'
+import { IdUUIDParamsSchema, createErrorSchema } from 'stoker/openapi/schemas'
 const tags = ['Courses']
 const path = '/courses'
 

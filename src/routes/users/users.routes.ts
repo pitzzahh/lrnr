@@ -1,9 +1,9 @@
-import { INSERT_USERS_SCHEMA, SELECT_USERS_SCHEMA, PATCH_USERS_SCHEMA } from '@/db/schema/users'
+import { INSERT_USERS_SCHEMA, PATCH_USERS_SCHEMA, SELECT_USERS_SCHEMA } from '@/db/schema/users'
 import { NOT_FOUND_SCHEMA } from '@/lib/constants'
 import { createRoute, z } from '@hono/zod-openapi'
 import * as HttpStatusCodes from 'stoker/http-status-codes'
 import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers'
-import { createErrorSchema, IdUUIDParamsSchema } from 'stoker/openapi/schemas'
+import { IdUUIDParamsSchema, createErrorSchema } from 'stoker/openapi/schemas'
 const tags = ['Users']
 const path = '/users'
 

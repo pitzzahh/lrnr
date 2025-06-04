@@ -1,17 +1,17 @@
 import db from '@/db'
+import { categories } from '@/db/schema'
+import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from '@/lib/constants'
 import type { AppRouteHandler } from '@/lib/types'
+import { eq } from 'drizzle-orm'
+import * as HttpStatusCodes from 'stoker/http-status-codes'
+import * as HttpStatusPhrases from 'stoker/http-status-phrases'
 import type {
-	ListRoute,
 	CreateRoute,
 	GetOneRoute,
+	ListRoute,
 	PatchRoute,
 	RemoveRoute,
 } from './categories.routes'
-import { categories } from '@/db/schema'
-import * as HttpStatusCodes from 'stoker/http-status-codes'
-import * as HttpStatusPhrases from 'stoker/http-status-phrases'
-import { eq } from 'drizzle-orm'
-import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from '@/lib/constants'
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
 	return c.json(await db.query.categories.findMany())
