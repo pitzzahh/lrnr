@@ -38,7 +38,7 @@ export default async function configureOpenAPI(app: AppOpenAPI) {
 
 	const markdown = await createMarkdownFromOpenApi(JSON.stringify(content))
 
-	app.get('/llms', async (c) => {
+	app.get('/llms.md', async (c) => {
 		return c.text(markdown)
 	})
 }

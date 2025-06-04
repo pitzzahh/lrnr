@@ -10,12 +10,12 @@ const router = createRouter().openapi(
 		description: 'Returns the API documentation in markdown format suitable for LLMs',
 		responses: {
 			302: {
-				description: 'Redirect to the main llms.txt endpoint',
+				description: 'Redirect to the main llms endpoint',
 			},
 		},
 	}),
 	async (c) => {
-		return c.redirect('/llms.txt')
+		return c.redirect('/llms.md')
 	}
 )
 
