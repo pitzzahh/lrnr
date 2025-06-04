@@ -1,8 +1,8 @@
 import 'dotenv/config'
-import { drizzle } from 'drizzle-orm/bun-sql'
-import { SQL } from 'bun'
-import env from '@/env'
 import * as schema from '@/db/schema/index'
+import env from '@/env'
+import { SQL } from 'bun'
+import { drizzle } from 'drizzle-orm/bun-sql'
 
 const client = new SQL({
 	host: env.DATABASE_HOST,
