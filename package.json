@@ -5,8 +5,9 @@
 	"version": "0.0.1",
 	"scripts": {
 		"dev": "bun run --hot src/index.ts",
-		"start": "bun run src/index.ts",
-		"build": "bun build src/index.ts --compile --outfile dist/server",
+		"start": "bun dist/index.js",
+		"build": "bun build src/index.ts --outdir dist --target bun",
+		"build:binary": "bun build src/index.ts --compile --outfile dist/server",
 		"deploy": "bun run build && bun run start",
 		"lint": "biome check .",
 		"lint:fix": "biome check --write .",
