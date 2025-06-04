@@ -4,6 +4,12 @@
 		"jsx": "react-jsx",
 		"jsxImportSource": "hono/jsx",
 		"resolveJsonModule": true,
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"outDir": "./dist",
+		"baseUrl": "./",
+		"target": "ESNext",
+		"skipLibCheck": true,
 		"allowSyntheticDefaultImports": true,
 		"paths": {
 			"@/*": [
