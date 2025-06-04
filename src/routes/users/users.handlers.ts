@@ -1,6 +1,6 @@
 import db from '@/db'
 import type { AppRouteHandler } from '@/lib/types'
-import type { ListRoute, CreateRoute, GetOneRoute, PatchRoute } from './users.routes'
+import type { ListRoute, CreateRoute, GetOneRoute, PatchRoute, RemoveRoute } from './users.routes'
 import { users } from '@/db/schema'
 import * as HttpStatusCodes from 'stoker/http-status-codes'
 import * as HttpStatusPhrases from 'stoker/http-status-phrases'
@@ -70,4 +70,18 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
 	}
 
 	return c.json(updated_user, HttpStatusCodes.OK)
+}
+
+export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
+	const { id } = c.req.valid('param')
+	const [result] = await db.delete(users).where(eq(users.id, id)).returning()
+	if (!result) {
+		return c.json(
+			{
+				message: HttpStatusPhrases.NOT_FOUND,
+			},
+			HttpStatusCodes.NOT_FOUND
+		)
+	}
+	return c.body(result, HttpStatusCodes.GONE)
 }
