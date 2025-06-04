@@ -27,18 +27,16 @@ export default async function configureOpenAPI(app: AppOpenAPI) {
 		})
 	)
 
-	const content = app.getOpenAPI31Document({
-		openapi: OPEN_API_VERSION,
-		info: {
-			title: pj.name,
-			description: pj.description,
-			version: pj.version,
-		},
-	})
-
-	const markdown = await createMarkdownFromOpenApi(JSON.stringify(content))
-
 	app.get('/llms.md', async (c) => {
+		const content = app.getOpenAPI31Document({
+			openapi: OPEN_API_VERSION,
+			info: {
+				title: pj.name,
+				description: pj.description,
+				version: pj.version,
+			},
+		})
+		const markdown = await createMarkdownFromOpenApi(JSON.stringify(content))
 		return c.text(markdown)
 	})
 }

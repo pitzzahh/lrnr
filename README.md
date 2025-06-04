@@ -1,197 +1,143 @@
-# 🎓 LRNR - Learning Management System API
+# LRNR - Learning Management System API
 
-A modern Learning Management System API built with [Hono](https://hono.dev/), [Bun](https://bun.sh/), and OpenAPI documentation. Fast, type-safe, and developer-friendly.
+A Learning Management System API built with Hono, Bun, and PostgreSQL. Features OpenAPI documentation, type-safe validation, and a clean architecture for educational platforms.
 
-## ✨ Features
+## Features
 
-- 🚀 **Fast Runtime**: Built on Bun for lightning-fast performance
-- 📚 **OpenAPI Documentation**: Auto-generated API docs with Scalar
-- 🔒 **Type Safety**: Full TypeScript support with Zod validation
-- 🎯 **Modern Stack**: Hono framework for lightweight and efficient routing
-- 🧹 **Code Quality**: Biome for linting and formatting
-- 🔥 **Hot Reload**: Development server with automatic reloading
+- RESTful API with OpenAPI 3.0 specification
+- Type-safe request/response validation with Zod
+- PostgreSQL database with Drizzle ORM
+- Automatic API documentation with Scalar
+- Hot reload development server
+- Code formatting and linting with Biome
 
-## 🛠️ Tech Stack
+## Technology Stack
 
-- **Runtime**: [Bun](https://bun.sh/)
-- **Framework**: [Hono](https://hono.dev/)
-- **Database**: [Drizzle ORM](https://orm.drizzle.team/)
-- **OpenAPI**: [@hono/zod-openapi](https://github.com/honojs/hono/tree/main/packages/zod-openapi)
-- **Validation**: [Zod](https://zod.dev/)
-- **Linting/Formatting**: [Biome](https://biomejs.dev/)
-- **Documentation**: [Scalar](https://scalar.dev/)
-- **Utilities**: [stoker](https://github.com/w3cj/stoker)
+- **Runtime**: Bun
+- **Framework**: Hono
+- **Database**: PostgreSQL with Drizzle ORM
+- **Validation**: Zod
+- **Documentation**: OpenAPI 3.0 with Scalar
+- **Code Quality**: Biome
 - **Language**: TypeScript
 
-## 🚀 Quick Start
+## Installation
 
 ### Prerequisites
 
-Make sure you have [Bun](https://bun.sh/) installed on your system:
+- [Bun](https://bun.sh/) runtime
+- PostgreSQL database
 
-```sh
-curl -fsSL https://bun.sh/install | bash
-```
-
-### Installation
+### Setup
 
 1. Clone the repository:
-```sh
-git clone <your-repo-url>
+```bash
+git clone <repository-url>
 cd lrnr
 ```
 
 2. Install dependencies:
-```sh
+```bash
 bun install
 ```
 
-3. Start the development server:
-```sh
+3. Configure environment variables:
+```bash
+cp .env.example .env
+# Edit .env with your database credentials
+```
+
+4. Run database migrations:
+```bash
+bun run db:migrate
+```
+
+5. Start the development server:
+```bash
 bun run dev
 ```
 
-4. Open your browser and navigate to:
-```
-http://localhost:3000
-```
+The API will be available at `http://localhost:3000` and interactive documentation at `http://localhost:3000/reference`.
 
-## 📜 Available Scripts
+## Development
 
-| Script | Description |
-|--------|-------------|
+### Available Scripts
+
+| Command | Description |
+|---------|-------------|
 | `bun run dev` | Start development server with hot reload |
-| `bun run lint` | Check code with Biome linter |
-| `bun run lint:fix` | Fix linting issues automatically |
+| `bun run lint` | Check code with Biome |
+| `bun run lint:fix` | Fix linting issues |
 | `bun run format` | Check code formatting |
-| `bun run format:fix` | Format code automatically |
-| `bun run check` | Run comprehensive code check |
+| `bun run format:fix` | Format code |
+| `bun run check` | Run code quality checks |
 | `bun run db:generate` | Generate database migrations |
-| `bun run db:migrate` | Run database migrations |
+| `bun run db:migrate` | Apply database migrations |
 | `bun run db:push` | Push schema changes to database |
-| `bun run db:studio` | Open Drizzle Studio for database management |
+| `bun run db:studio` | Open Drizzle Studio |
 
-## 🔧 Configuration
+### Environment Configuration
 
-### Environment Variables
-
-Create a `.env` file in the root directory:
+Create a `.env` file in the project root:
 
 ```env
+# Server Configuration
 PORT=3000
-DATABASE_URL=postgresql://username:password@localhost:5432/lrnr
-# Or for SQLite:
-# DATABASE_URL=file:./dev.db
-# Add other environment variables as needed
+
+# Database Configuration
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USER=your_username
+DATABASE_PASSWORD=your_password
+DATABASE_NAME=lrnr
 ```
 
-### Database Configuration
-
-The project uses Drizzle ORM for database operations. Create a `drizzle.config.ts` file in the root directory:
-
-```typescript
-import { defineConfig } from 'drizzle-kit';
-
-export default defineConfig({
-  schema: './src/db/schema.ts',
-  out: './drizzle',
-  dialect: 'postgresql', // or 'sqlite' | 'mysql'
-  dbCredentials: {
-    url: process.env.DATABASE_URL!,
-  },
-});
-```
-
-### TypeScript Configuration
-
-The project uses strict TypeScript settings with:
-- Strict mode enabled
-- JSX support with Hono JSX
-- Path mapping for clean imports (`@/*` → `./src/*`)
-
-### Code Quality
-
-Biome is configured for:
-- ESLint-style linting with recommended rules
-- Prettier-style formatting with tabs and 100 character line width
-- Import organization
-- Git integration
-
-## 📖 API Documentation
-
-Once the server is running, access the auto-generated OpenAPI documentation with Scalar at:
+### Project Structure
 
 ```
-http://localhost:3000/doc
+src/
+├── app.ts              # Application setup and route registration
+├── index.ts            # Server entry point
+├── env.ts              # Environment variable validation
+├── db/
+│   ├── index.ts        # Database connection
+│   ├── schema/         # Database schema definitions
+│   └── migrations/     # Database migration files
+├── lib/
+│   ├── create-app.ts   # Hono app factory
+│   ├── configure-openapi.ts  # OpenAPI configuration
+│   └── types.ts        # Shared type definitions
+└── routes/
+    ├── users/          # User management endpoints
+    ├── courses/        # Course management endpoints
+    ├── categories/     # Category management endpoints
+    └── llms/           # LLM integration endpoints
 ```
 
-The API documentation is automatically generated from your route definitions using Zod schemas and beautifully rendered with Scalar's modern interface.
+## API Documentation
 
-## 🏗️ Development
+The API documentation is automatically generated from route definitions and available at:
+- `/doc` - OpenAPI JSON specification
+- `/reference` - Interactive Scalar UI documentation 
+- `/llms.md` - Markdown documentation for LLMs
 
-### Adding New Routes
+The interactive documentation at `/reference` includes:
 
-Example of adding a new route with OpenAPI documentation:
+- Interactive API explorer
+- Request/response schemas
+- Authentication requirements
+- Example requests and responses
 
-```typescript
-import { z } from 'zod';
-import { createRoute } from '@hono/zod-openapi';
-
-const route = createRoute({
-  method: 'get',
-  path: '/users',
-  responses: {
-    200: {
-      content: {
-        'application/json': {
-          schema: z.array(z.object({
-            id: z.string(),
-            name: z.string(),
-            email: z.string().email(),
-          })),
-        },
-      },
-      description: 'List of users',
-    },
-  },
-});
-
-app.openapi(route, (c) => {
-  // Your route handler
-  return c.json([]);
-});
-```
-
-### Code Style
-
-This project uses Biome for consistent code formatting and linting. Run the following before committing:
-
-```sh
-bun run lint:fix
-bun run format:fix
-```
-
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch (`git checkout -b feature/new-feature`)
+3. Make your changes
+4. Run tests and linting (`bun run check`)
+5. Commit your changes (`git commit -m 'Add new feature'`)
+6. Push to the branch (`git push origin feature/new-feature`)
+7. Create a Pull Request
 
-## 📝 License
+## License
 
-This project is licensed under the [MIT License](LICENSE).
-
-## 🙏 Acknowledgments
-
-- [Hono](https://hono.dev/) - The fast, lightweight web framework
-- [Bun](https://bun.sh/) - The all-in-one JavaScript runtime
-- [Biome](https://biomejs.dev/) - Fast formatter and linter
-- [Zod](https://zod.dev/) - TypeScript-first schema validation
-- [drizzle-orm](https://orm.drizzle.team/) - Type-safe ORM for 
-- [stoker](https://github.com/w3cj/stoker) - For utilities for hono and @hono/zod-openapi
-
----
-
-Built with ❤️ and modern web technologies
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
