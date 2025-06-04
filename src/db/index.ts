@@ -12,6 +12,6 @@ const client = new SQL({
 	database: env.DATABASE_NAME,
 })
 
-const db = drizzle({ client, schema })
+const db = drizzle({ client, schema, casing: 'snake_case' })
 
 export default db
