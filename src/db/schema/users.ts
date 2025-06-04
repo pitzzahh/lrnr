@@ -11,7 +11,8 @@ const users = pgTable('users', (t) => ({
 
 export const SELECT_USERS_SCHEMA = createSelectSchema(users)
 export const INSERT_USERS_SCHEMA = createInsertSchema(users, {
-	name: (s) => s.min(1).max(500),
+	name: (s) => s.name.min(1).max(500),
+	email: (s) => s.email.min(1).max(500).email(),
 })
 	.required({
 		name: true,
