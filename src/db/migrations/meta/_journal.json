@@ -15,6 +15,13 @@
       "when": 1749016099206,
       "tag": "0001_smooth_black_bird",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1749020778815,
+      "tag": "0002_polite_ravenous",
+      "breakpoints": true
     }
   ]
 }
