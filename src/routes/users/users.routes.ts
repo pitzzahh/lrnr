@@ -41,7 +41,7 @@ export const getOne = createRoute({
 	tags,
 	responses: {
 		[HttpStatusCodes.OK]: jsonContent(SELECT_USERS_SCHEMA, 'The requested user'),
-		[HttpStatusCodes.NOT_FOUND]: jsonContent(NOT_FOUND_SCHEMA, 'Request user not found'),
+		[HttpStatusCodes.NOT_FOUND]: jsonContent(NOT_FOUND_SCHEMA, 'Requested user not found'),
 		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
 			createErrorSchema(IdUUIDParamsSchema),
 			'Invalid id error'
