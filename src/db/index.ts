@@ -6,7 +6,7 @@ import { drizzle } from 'drizzle-orm/bun-sql'
 
 const client = new SQL({
 	host: env.DATABASE_HOST,
-	port: Number(env.DATABASE_PORT),
+	port: env.DATABASE_PORT,
 	user: env.DATABASE_USER,
 	password: env.DATABASE_PASSWORD,
 	database: env.DATABASE_NAME,
