@@ -7,7 +7,14 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": ["node_modules/**", "dist/**", "build/**", "*.lock", "bun.lock"]
+		"ignore": [
+			"node_modules/**",
+			"dist/**",
+			"build/**",
+			"*.lock",
+			"bun.lock",
+			"src/db/migrations/**"
+		]
 	},
 	"formatter": {
 		"enabled": true,
