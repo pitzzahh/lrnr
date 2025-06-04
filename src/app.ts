@@ -8,10 +8,12 @@ import users from '@/routes/users/users.index'
 const app = createApp()
 
 const routes = [index, llms, users, categories, courses]
-await configureOpenAPI(app)
+
 for (const route of routes) {
 	app.route('/', route)
 }
+
+await configureOpenAPI(app)
 
 export type AppType = (typeof routes)[number]
 
