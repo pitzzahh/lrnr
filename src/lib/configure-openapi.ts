@@ -24,16 +24,13 @@ export default async function configureOpenAPI(app: AppOpenAPI) {
       version: pj.version
     },
   });
-  app.get("/reference",
-    Scalar({
-      spec: {
-        url: '/doc',
-      },
-      theme: "kepler",
-      defaultHttpClient: {
-        targetKey: "javascript",
-        clientKey: "fetch",
-      }
-    })
-  );
+
+  app.get("/reference", Scalar({
+    url: '/doc',
+    theme: "elysiajs",
+    defaultHttpClient: {
+      targetKey: "js",
+      clientKey: "fetch",
+    }
+  }));
 }
