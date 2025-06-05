@@ -3,6 +3,7 @@ import { sessions, users } from '@/db/schema'
 import type { Session } from '@/db/schema/sessions'
 import type { User } from '@/db/schema/users'
 import type { AppBindings } from '@/lib/types'
+import { z } from '@hono/zod-openapi'
 import { sha256 } from '@oslojs/crypto/sha2'
 import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from '@oslojs/encoding'
 import { eq } from 'drizzle-orm'
@@ -12,6 +13,17 @@ const SESSION_REFRESH_INTERVAL_MS = 1000 * 60 * 60 * 24 * 15
 const SESSION_MAX_DURATION_MS = SESSION_REFRESH_INTERVAL_MS * 2
 
 export const SESSION_COOKIE_NAME = 'session'
+export const SIGNIN_SCHEMA = z.object({
+	email: z.string().email(),
+	password: z.string().min(8).max(100),
+})
+
+export const SIGNUP_SCHEMA = SIGNIN_SCHEMA.extend({
+	name: z.string().min(1).max(500),
+	password_confirmation: z.string().min(8).max(100),
+}).refine((data) => data.password === data.password_confirmation, {
+	message: 'Passwords do not match',
+})
 
 export function generate_session_token(): string {
 	const bytes = new Uint8Array(20)
