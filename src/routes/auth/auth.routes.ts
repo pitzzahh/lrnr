@@ -26,6 +26,10 @@ export const signin = createRoute({
 			createErrorSchema(z.object({ message: z.string() })),
 			'An error occurred while processing the signin request'
 		),
+		[HttpStatusCodes.NOT_FOUND]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'User not found for the provided credentials'
+		),
 	},
 })
 
