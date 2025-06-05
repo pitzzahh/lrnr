@@ -31,4 +31,6 @@ export const INSERT_SESSIONS_SCHEMA = createInsertSchema(sessions, {
 
 export const PATCH_SESSIONS_SCHEMA = INSERT_SESSIONS_SCHEMA.partial()
 
+export type Sessions = typeof sessions.$inferSelect
+
 export default sessions
