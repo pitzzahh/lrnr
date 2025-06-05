@@ -64,6 +64,13 @@
       "when": 1749115049374,
       "tag": "0008_mature_iron_monger",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1749119193226,
+      "tag": "0009_fine_black_bolt",
+      "breakpoints": true
     }
   ]
 }
