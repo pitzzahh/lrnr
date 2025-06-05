@@ -1,5 +1,6 @@
 import db from '@/db'
-import { sessions, users } from '@/db/schema'
+import { api_keys, sessions, users } from '@/db/schema'
+import type { ApiKey } from '@/db/schema/api-keys'
 import type { Session } from '@/db/schema/sessions'
 import type { User } from '@/db/schema/users'
 import env from '@/env'
@@ -7,7 +8,7 @@ import type { AppBindings } from '@/lib/types'
 import { z } from '@hono/zod-openapi'
 import { sha256 } from '@oslojs/crypto/sha2'
 import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from '@oslojs/encoding'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import type { Context } from 'hono'
 import { deleteCookie, setCookie } from 'hono/cookie'
 
@@ -181,5 +182,148 @@ export function delete_session_token_cookie(c: Context<AppBindings>): void {
 	} catch (error) {
 		c.var.logger.error('Failed to delete session cookie:', error)
 		throw error
+	}
+}
+
+// API Key constants and schemas
+export const API_KEY_PREFIX = 'lrnr_'
+export const API_KEY_LENGTH = 32 // Length of the random part
+
+export const CREATE_API_KEY_SCHEMA = z.object({
+	name: z.string().min(1).max(100),
+	expires_at: z.string().datetime().optional(),
+})
+
+// API Key functions
+export function generate_api_key(): { key: string; hash: string; prefix: string } {
+	// Generate random bytes for the key
+	const bytes = new Uint8Array(API_KEY_LENGTH)
+	crypto.getRandomValues(bytes)
+
+	// Create the full key with prefix
+	const randomPart = encodeBase32LowerCaseNoPadding(bytes)
+	const key = `${API_KEY_PREFIX}${randomPart}`
+
+	// Hash the key for storage
+	const hash = encodeHexLowerCase(sha256(new TextEncoder().encode(key)))
+
+	// Create prefix for identification (first 8 characters)
+	const prefix = key.substring(0, 8)
+
+	return { key, hash, prefix }
+}
+
+export async function create_api_key(
+	c: Context<AppBindings>,
+	user_id: string,
+	name: string,
+	expires_at?: Date
+): Promise<{ api_key: ApiKey; key: string }> {
+	try {
+		const { key, hash, prefix } = generate_api_key()
+
+		c.var.logger.debug(`Creating API key for user_id=${user_id}, name=${name}`)
+
+		const [api_key] = await db
+			.insert(api_keys)
+			.values({
+				name,
+				key_hash: hash,
+				key_prefix: prefix,
+				user_id,
+				expires_at,
+			})
+			.returning()
+
+		c.var.logger.debug(`Created API key id=${api_key.id} for user_id=${user_id}`)
+
+		return { api_key, key }
+	} catch (error) {
+		const errorMessage = error instanceof Error ? error.message : String(error)
+		c.var.logger.error(`Failed to create API key: ${errorMessage}`)
+		throw new Error('Failed to create API key', { cause: error })
+	}
+}
+
+export async function validate_api_key(
+	key: string,
+	c: Context<AppBindings>
+): Promise<{ api_key: ApiKey | null; user: User | null }> {
+	try {
+		if (!key.startsWith(API_KEY_PREFIX)) {
+			c.var.logger.debug('Invalid API key format - missing prefix')
+			return { api_key: null, user: null }
+		}
+
+		const hash = encodeHexLowerCase(sha256(new TextEncoder().encode(key)))
+		c.var.logger.debug(`Validating API key with hash=${hash.substring(0, 8)}...`)
+
+		const result = await db.query.api_keys.findFirst({
+			where: (api_keys, { eq, and, gt, isNull, or }) =>
+				and(
+					eq(api_keys.key_hash, hash),
+					eq(api_keys.is_active, true),
+					or(
+						isNull(api_keys.expires_at),
+						gt(api_keys.expires_at, new Date())
+					)
+				),
+			with: {
+				user: true,
+			},
+		})
+
+		if (!result) {
+			c.var.logger.debug('API key not found or expired')
+			return { api_key: null, user: null }
+		}
+
+		// Update last_used_at
+		await db
+			.update(api_keys)
+			.set({ last_used_at: new Date() })
+			.where(eq(api_keys.id, result.id))
+
+		c.var.logger.debug(`Valid API key found for user_id=${result.user.id}`)
+
+		return { api_key: result, user: result.user }
+	} catch (error) {
+		const errorMessage = error instanceof Error ? error.message : String(error)
+		c.var.logger.error(`Failed to validate API key: ${errorMessage}`)
+		return { api_key: null, user: null }
+	}
+}
+
+export async function revoke_api_key(
+	c: Context<AppBindings>,
+	api_key_id: string,
+	user_id: string
+): Promise<boolean> {
+	try {
+		c.var.logger.debug(`Revoking API key id=${api_key_id} for user_id=${user_id}`)
+
+		const result = await db
+			.update(api_keys)
+			.set({ is_active: false })
+			.where(
+				and(
+					eq(api_keys.id, api_key_id),
+					eq(api_keys.user_id, user_id)
+				)
+			)
+			.returning()
+
+		const success = result.length > 0
+		if (success) {
+			c.var.logger.debug(`Successfully revoked API key id=${api_key_id}`)
+		} else {
+			c.var.logger.debug(`API key id=${api_key_id} not found or not owned by user`)
+		}
+
+		return success
+	} catch (error) {
+		const errorMessage = error instanceof Error ? error.message : String(error)
+		c.var.logger.error(`Failed to revoke API key: ${errorMessage}`)
+		return false
 	}
 }
