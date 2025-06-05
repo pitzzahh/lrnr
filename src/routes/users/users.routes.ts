@@ -17,6 +17,10 @@ export const list = createRoute({
 			NOT_FOUND_SCHEMA,
 			'Unauthorized access to the users list'
 		),
+		[HttpStatusCodes.FORBIDDEN]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Forbidden access to the users list, insufficient permissions'
+		),
 	},
 })
 
@@ -58,6 +62,10 @@ export const getOne = createRoute({
 			NOT_FOUND_SCHEMA,
 			'Unauthorized access to the user'
 		),
+		[HttpStatusCodes.FORBIDDEN]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Forbidden access to the user, insufficient permissions'
+		),
 	},
 })
 
@@ -80,6 +88,10 @@ export const patch = createRoute({
 			NOT_FOUND_SCHEMA,
 			'Unauthorized access to the user update'
 		),
+		[HttpStatusCodes.FORBIDDEN]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Forbidden access to the user update, insufficient permissions'
+		),
 	},
 })
 
@@ -100,6 +112,10 @@ export const remove = createRoute({
 		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
 			NOT_FOUND_SCHEMA,
 			'Unauthorized access to the user deletion'
+		),
+		[HttpStatusCodes.FORBIDDEN]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Forbidden access to the user deletion, insufficient permissions'
 		),
 	},
 })
