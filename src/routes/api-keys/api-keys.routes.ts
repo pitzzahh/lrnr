@@ -56,6 +56,10 @@ export const create = createRoute({
 			createErrorSchema(INSERT_API_KEYS_SCHEMA),
 			'The validation error(s) for the API key creation request'
 		),
+		[HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'An unexpected error occurred while creating the API key'
+		),
 	},
 })
 
@@ -94,6 +98,10 @@ export const patch = createRoute({
 		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
 			createErrorSchema(PATCH_API_KEYS_SCHEMA),
 			'The validation error(s) for the API key update request'
+		),
+		[HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'An unexpected error occurred while updating the API key'
 		),
 	},
 })
