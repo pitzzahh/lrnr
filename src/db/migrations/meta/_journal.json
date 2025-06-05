@@ -71,6 +71,13 @@
       "when": 1749119193226,
       "tag": "0009_fine_black_bolt",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1749131498512,
+      "tag": "0010_opposite_santa_claus",
+      "breakpoints": true
     }
   ]
 }
