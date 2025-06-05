@@ -2,6 +2,7 @@ import db from '@/db'
 import { sessions, users } from '@/db/schema'
 import type { Session } from '@/db/schema/sessions'
 import type { User } from '@/db/schema/users'
+import env from '@/env'
 import type { AppBindings } from '@/lib/types'
 import { z } from '@hono/zod-openapi'
 import { sha256 } from '@oslojs/crypto/sha2'
@@ -32,9 +33,13 @@ export function generate_session_token(): string {
 	return token
 }
 
-export async function create_session(token: string, user_id: string): Promise<Session> {
+export async function create_session(
+	c: Context<AppBindings>,
+	token: string,
+	user_id: string
+): Promise<Session> {
 	const session_id = encodeHexLowerCase(sha256(new TextEncoder().encode(token)))
-	console.log('session_id at createSession', session_id)
+	c.var.logger.debug(`Created session id=${session_id} for user_id=${user_id}`)
 	const session: Session = {
 		id: session_id,
 		user_id,
@@ -92,9 +97,11 @@ export type SessionValidationResult =
 	| { session: Session; user: User }
 	| { session: null; user: null }
 
-export function set_session_token_cookie(c: Context, token: string, expires_at: Date) {
-	console.log('set cookie', process.env.NODE_ENV)
-	if (process.env.NODE_ENV === 'PROD') {
+export function set_session_token_cookie(c: Context<AppBindings>, token: string, expires_at: Date) {
+	c.var.logger.debug(
+		`Setting session cookie for token=${token} expires_at=${expires_at.toUTCString()}`
+	)
+	if (env.NODE_ENV === 'production') {
 		c.header(
 			'Set-Cookie',
 			`${SESSION_COOKIE_NAME}=${token}; HttpOnly; SameSite=Lax; Expires=${expires_at.toUTCString()}; Path=/; Secure;`,
@@ -110,7 +117,8 @@ export function set_session_token_cookie(c: Context, token: string, expires_at: 
 }
 
 export function delete_session_token_cookie(c: Context<AppBindings>): void {
-	if (process.env.NODE_ENV === 'PROD') {
+	c.var.logger.debug('Deleting session token cookie')
+	if (env.NODE_ENV === 'production') {
 		c.header(
 			'Set-Cookie',
 			`${SESSION_COOKIE_NAME}=; HttpOnly; SameSite=Lax; Max-Age=0; Path=/; Secure;`,
