@@ -8,16 +8,43 @@ import * as HttpStatusPhrases from 'stoker/http-status-phrases'
 import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } from './users.routes'
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
-	return c.json(await db.query.users.findMany())
+	const current_user = c.get('user')
+	if (!current_user) {
+		return c.json(
+			{
+				message: HttpStatusPhrases.UNAUTHORIZED,
+			},
+			HttpStatusCodes.UNAUTHORIZED
+		)
+	}
+	return c.json(await db.query.users.findMany(), HttpStatusCodes.OK)
 }
 
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
+	const current_user = c.get('user')
+	if (!current_user) {
+		return c.json(
+			{
+				message: HttpStatusPhrases.UNAUTHORIZED,
+			},
+			HttpStatusCodes.UNAUTHORIZED
+		)
+	}
 	const user = c.req.valid('json')
 	const [inserted_user] = await db.insert(users).values(user).returning()
 	return c.json(inserted_user, HttpStatusCodes.OK)
 }
 
 export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
+	const current_user = c.get('user')
+	if (!current_user) {
+		return c.json(
+			{
+				message: HttpStatusPhrases.UNAUTHORIZED,
+			},
+			HttpStatusCodes.UNAUTHORIZED
+		)
+	}
 	const { id } = c.req.valid('param')
 	const user = await db.query.users.findFirst({
 		where(fields, operators) {
@@ -36,6 +63,15 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
 }
 
 export const patch: AppRouteHandler<PatchRoute> = async (c) => {
+	const current_user = c.get('user')
+	if (!current_user) {
+		return c.json(
+			{
+				message: HttpStatusPhrases.UNAUTHORIZED,
+			},
+			HttpStatusCodes.UNAUTHORIZED
+		)
+	}
 	const { id } = c.req.valid('param')
 	const updates = c.req.valid('json')
 
@@ -73,6 +109,15 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
 }
 
 export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
+	const current_user = c.get('user')
+	if (!current_user) {
+		return c.json(
+			{
+				message: HttpStatusPhrases.UNAUTHORIZED,
+			},
+			HttpStatusCodes.UNAUTHORIZED
+		)
+	}
 	const { id } = c.req.valid('param')
 	const [result] = await db.delete(users).where(eq(users.id, id)).returning()
 	if (!result) {
