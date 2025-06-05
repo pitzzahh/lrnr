@@ -4,7 +4,7 @@ import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
 const categories = pgTable('categories', (t) => ({
 	id: t.uuid().primaryKey().defaultRandom(),
 	name: t.text().notNull().unique(),
-	created_at: t.timestamp().defaultNow(),
+	created_at: t.timestamp({ withTimezone: true, mode: 'date' }).defaultNow(),
 }))
 
 export const SELECT_CATEGORIES_SCHEMA = createSelectSchema(categories)

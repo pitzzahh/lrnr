@@ -8,8 +8,11 @@ const users = pgTable('users', (t) => ({
 	email: t.text().notNull().unique(),
 	password_hash: t.text().notNull(),
 	role: role_name().default('STUDENT'),
-	created_at: t.timestamp().defaultNow(),
-	updated_at: t.timestamp().defaultNow().$default(() => new Date())
+	created_at: t.timestamp({ withTimezone: true, mode: 'date' }).defaultNow(),
+	updated_at: t
+		.timestamp({ withTimezone: true, mode: 'date' })
+		.defaultNow()
+		.$onUpdate(() => new Date()),
 }))
 
 export const SELECT_USERS_SCHEMA = createSelectSchema(users)

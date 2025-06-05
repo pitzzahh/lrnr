@@ -6,9 +6,9 @@ const courses = pgTable('courses', (t) => ({
 	id: t.uuid().primaryKey().defaultRandom(),
 	title: t.text().notNull(),
 	description: t.text(),
-	created_at: t.timestamp().defaultNow(),
+	created_at: t.timestamp({ withTimezone: true, mode: 'date' }).defaultNow(),
 	updated_at: t
-		.timestamp()
+		.timestamp({ withTimezone: true, mode: 'date' })
 		.defaultNow()
 		.$onUpdate(() => new Date()),
 	thumbnail_url: t.text().notNull(),
