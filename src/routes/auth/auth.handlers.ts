@@ -56,6 +56,8 @@ export const signin: AppRouteHandler<SigninRoute> = async (c) => {
 			`auth/signin: session cookie set for user_id=${user.id}, session_id=${session.id}`
 		)
 		const { password_hash: _, ...user_password_redacted } = user
+		c.set('user', user_password_redacted)
+		c.set('session', session)
 		return c.json(user_password_redacted, HttpStatusCodes.OK)
 	} catch {
 		return c.json(
