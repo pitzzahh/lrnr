@@ -1,6 +1,6 @@
+import { users } from '@/db/schema'
 import { pgTable } from 'drizzle-orm/pg-core'
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
-import { users } from '@/db/schema'
 
 const sessions = pgTable('sessions', (t) => ({
 	id: t.uuid().primaryKey().defaultRandom(),
