@@ -1,3 +1,4 @@
+import { authentication } from '@/hooks/auth'
 import { logger } from '@/hooks/pino-logger'
 import type { AppBindings } from '@/lib/types'
 import { OpenAPIHono } from '@hono/zod-openapi'
@@ -11,6 +12,7 @@ export function createRouter() {
 export default function createApp() {
 	const app = createRouter()
 	app.use(logger())
+	app.use('*', authentication)
 	app.use(serveEmojiFavicon('📚'))
 
 	app.notFound(notFound)

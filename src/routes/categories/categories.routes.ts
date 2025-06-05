@@ -17,6 +17,10 @@ export const list = createRoute({
 	tags,
 	responses: {
 		[HttpStatusCodes.OK]: jsonContent(z.array(SELECT_CATEGORIES_SCHEMA), 'The list of categories'),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Unauthorized access to categories'
+		),
 	},
 })
 
@@ -32,6 +36,10 @@ export const create = createRoute({
 		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
 			createErrorSchema(INSERT_CATEGORIES_SCHEMA),
 			'The validation error(s) for the category creation request'
+		),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Unauthorized access to category creation'
 		),
 	},
 })
@@ -49,6 +57,10 @@ export const getOne = createRoute({
 		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
 			createErrorSchema(IdUUIDParamsSchema),
 			'Invalid id error'
+		),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Unauthorized access to the category'
 		),
 	},
 })
@@ -68,6 +80,10 @@ export const patch = createRoute({
 			createErrorSchema(PATCH_CATEGORIES_SCHEMA).or(createErrorSchema(IdUUIDParamsSchema)),
 			'The validation error(s)'
 		),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Unauthorized access to the category update'
+		),
 	},
 })
 
@@ -84,6 +100,10 @@ export const remove = createRoute({
 		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
 			createErrorSchema(IdUUIDParamsSchema),
 			'Invalid id error'
+		),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Unauthorized access to the category deletion'
 		),
 	},
 })

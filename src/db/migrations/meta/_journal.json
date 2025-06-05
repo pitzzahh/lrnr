@@ -29,6 +29,48 @@
       "when": 1749022933818,
       "tag": "0003_jazzy_trish_tilby",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1749106484451,
+      "tag": "0004_mute_mordo",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1749109184821,
+      "tag": "0005_colossal_network",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1749109424127,
+      "tag": "0006_tough_hobgoblin",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1749114541899,
+      "tag": "0007_late_the_anarchist",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1749115049374,
+      "tag": "0008_mature_iron_monger",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1749119193226,
+      "tag": "0009_fine_black_bolt",
+      "breakpoints": true
     }
   ]
 }

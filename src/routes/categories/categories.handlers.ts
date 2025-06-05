@@ -14,16 +14,43 @@ import type {
 } from './categories.routes'
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
-	return c.json(await db.query.categories.findMany())
+	const current_user = c.get('user')
+	if (!current_user) {
+		return c.json(
+			{
+				message: HttpStatusPhrases.UNAUTHORIZED,
+			},
+			HttpStatusCodes.UNAUTHORIZED
+		)
+	}
+	return c.json(await db.query.categories.findMany(), HttpStatusCodes.OK)
 }
 
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
+	const current_user = c.get('user')
+	if (!current_user) {
+		return c.json(
+			{
+				message: HttpStatusPhrases.UNAUTHORIZED,
+			},
+			HttpStatusCodes.UNAUTHORIZED
+		)
+	}
 	const category = c.req.valid('json')
 	const [inserted_category] = await db.insert(categories).values(category).returning()
 	return c.json(inserted_category, HttpStatusCodes.OK)
 }
 
 export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
+	const current_user = c.get('user')
+	if (!current_user) {
+		return c.json(
+			{
+				message: HttpStatusPhrases.UNAUTHORIZED,
+			},
+			HttpStatusCodes.UNAUTHORIZED
+		)
+	}
 	const { id } = c.req.valid('param')
 	const category = await db.query.categories.findFirst({
 		where(fields, operators) {
@@ -42,6 +69,15 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
 }
 
 export const patch: AppRouteHandler<PatchRoute> = async (c) => {
+	const current_user = c.get('user')
+	if (!current_user) {
+		return c.json(
+			{
+				message: HttpStatusPhrases.UNAUTHORIZED,
+			},
+			HttpStatusCodes.UNAUTHORIZED
+		)
+	}
 	const { id } = c.req.valid('param')
 	const updates = c.req.valid('json')
 
@@ -83,6 +119,15 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
 }
 
 export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
+	const current_user = c.get('user')
+	if (!current_user) {
+		return c.json(
+			{
+				message: HttpStatusPhrases.UNAUTHORIZED,
+			},
+			HttpStatusCodes.UNAUTHORIZED
+		)
+	}
 	const { id } = c.req.valid('param')
 	const [result] = await db.delete(categories).where(eq(categories.id, id)).returning()
 	if (!result) {

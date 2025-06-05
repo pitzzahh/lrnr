@@ -9,6 +9,7 @@ export const ZOD_ERROR_MESSAGES = {
 
 export const ZOD_ERROR_CODES = {
 	INVALID_UPDATES: 'invalid_updates',
+	CUSTOM: 'custom',
 }
 
 export const NOT_FOUND_SCHEMA = createMessageObjectSchema(HttpStatusPhrases.NOT_FOUND)
