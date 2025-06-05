@@ -1,8 +1,10 @@
-import { courses, users } from '@/db/schema'
+import { courses, enrollement_status, users } from '@/db/schema'
 import { pgTable } from 'drizzle-orm/pg-core'
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
 
 const enrollments = pgTable('enrollments', (t) => ({
+	progress: t.integer().notNull().default(0),
+	status: enrollement_status().notNull().default('PENDING'),
 	user_id: t
 		.uuid()
 		.notNull()
