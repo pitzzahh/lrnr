@@ -83,5 +83,5 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
 			HttpStatusCodes.NOT_FOUND
 		)
 	}
-	return c.json(result, HttpStatusCodes.GONE)
+	return c.json(result, HttpStatusCodes.OK)
 }

@@ -75,7 +75,7 @@ export const remove = createRoute({
 		params: IdUUIDParamsSchema,
 	},
 	responses: {
-		[HttpStatusCodes.GONE]: jsonContent(SELECT_USERS_SCHEMA, 'The deleted user'),
+		[HttpStatusCodes.OK]: jsonContent(SELECT_USERS_SCHEMA, 'The deleted user'),
 		[HttpStatusCodes.NOT_FOUND]: jsonContent(NOT_FOUND_SCHEMA, 'Requested user not found'),
 		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
 			createErrorSchema(IdUUIDParamsSchema),
