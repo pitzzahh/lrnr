@@ -1,8 +1,8 @@
 import {
 	SESSION_COOKIE_NAME,
-	deleteSessionTokenCookie,
+	delete_session_token_cookie,
 	generate_session_token,
-	setSessionTokenCookie,
+	set_session_token_cookie,
 	validate_session_token,
 } from '@/lib/auth'
 import type { AppBindings } from '@/lib/types'
@@ -21,10 +21,10 @@ export const authentication = createMiddleware<AppBindings>(async (c, next) => {
 	const { session, user } = await validate_session_token(sessionId, c)
 	if (session && !c.req.path.startsWith('/auth')) {
 		const token = generate_session_token()
-		setSessionTokenCookie(c, token, session.expires_at)
+		set_session_token_cookie(c, token, session.expires_at)
 	}
 	if (!session) {
-		deleteSessionTokenCookie(c)
+		delete_session_token_cookie(c)
 	}
 	c.set('user', user)
 	c.set('session', session)

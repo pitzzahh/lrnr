@@ -80,11 +80,11 @@ export async function validate_session_token(
 	return { session, user }
 }
 
-export async function invalidateSession(session_id: string): Promise<void> {
+export async function invalidate_session(session_id: string): Promise<void> {
 	await db.delete(sessions).where(eq(sessions.id, session_id))
 }
 
-export async function invalidateUserSession(user_id: string): Promise<void> {
+export async function invalidate_user_session(user_id: string): Promise<void> {
 	await db.delete(sessions).where(eq(sessions.user_id, user_id))
 }
 
@@ -92,24 +92,24 @@ export type SessionValidationResult =
 	| { session: Session; user: User }
 	| { session: null; user: null }
 
-export function setSessionTokenCookie(c: Context, token: string, expiresAt: Date) {
+export function set_session_token_cookie(c: Context, token: string, expires_at: Date) {
 	console.log('set cookie', process.env.NODE_ENV)
 	if (process.env.NODE_ENV === 'PROD') {
 		c.header(
 			'Set-Cookie',
-			`${SESSION_COOKIE_NAME}=${token}; HttpOnly; SameSite=Lax; Expires=${expiresAt.toUTCString()}; Path=/; Secure;`,
+			`${SESSION_COOKIE_NAME}=${token}; HttpOnly; SameSite=Lax; Expires=${expires_at.toUTCString()}; Path=/; Secure;`,
 			{ append: true }
 		)
 	} else {
 		c.header(
 			'Set-Cookie',
-			`${SESSION_COOKIE_NAME}=${token}; HttpOnly; SameSite=Lax; Expires=${expiresAt.toUTCString()}; Path=/`,
+			`${SESSION_COOKIE_NAME}=${token}; HttpOnly; SameSite=Lax; Expires=${expires_at.toUTCString()}; Path=/`,
 			{ append: true }
 		)
 	}
 }
 
-export function deleteSessionTokenCookie(c: Context<AppBindings>): void {
+export function delete_session_token_cookie(c: Context<AppBindings>): void {
 	if (process.env.NODE_ENV === 'PROD') {
 		c.header(
 			'Set-Cookie',

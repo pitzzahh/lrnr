@@ -2,10 +2,10 @@ import db from '@/db'
 import { users } from '@/db/schema'
 import {
 	create_session,
-	deleteSessionTokenCookie,
+	delete_session_token_cookie,
 	generate_session_token,
-	invalidateSession,
-	setSessionTokenCookie,
+	invalidate_session,
+	set_session_token_cookie,
 } from '@/lib/auth'
 import { ZOD_ERROR_CODES } from '@/lib/constants'
 import type { AppRouteHandler } from '@/lib/types'
@@ -34,7 +34,7 @@ export const signin: AppRouteHandler<SigninRoute> = async (c) => {
 	try {
 		const token = generate_session_token()
 		const session = await create_session(token, user.id)
-		setSessionTokenCookie(c, token, session.expires_at)
+		set_session_token_cookie(c, token, session.expires_at)
 
 		// Return user without password_hash
 		const { password_hash: _, ...userWithoutPassword } = user
@@ -118,8 +118,8 @@ export const logout: AppRouteHandler<LogoutRoute> = async (c) => {
 	}
 
 	try {
-		await invalidateSession(session.id)
-		deleteSessionTokenCookie(c)
+		await invalidate_session(session.id)
+		delete_session_token_cookie(c)
 
 		return c.json(
 			{
