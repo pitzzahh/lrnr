@@ -11,8 +11,8 @@ export function createRouter() {
 
 export default function createApp() {
 	const app = createRouter()
-	app.use('*', authentication)
 	app.use(logger())
+	app.use('*', authentication)
 	app.use(serveEmojiFavicon('📚'))
 
 	app.notFound(notFound)
