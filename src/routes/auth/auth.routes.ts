@@ -6,7 +6,7 @@ import * as HttpStatusCodes from 'stoker/http-status-codes'
 import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers'
 import { IdUUIDParamsSchema, createErrorSchema } from 'stoker/openapi/schemas'
 const tags = ['Auth']
-const path = '/users'
+const path = '/auth'
 
 export const signin = createRoute({
 	path,
@@ -22,6 +22,10 @@ export const signin = createRoute({
 			'The validation error(s) for the signin request'
 		),
 		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(NOT_FOUND_SCHEMA, 'Invalid credentials for signin'),
+		[HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+			createErrorSchema(z.object({ message: z.string() })),
+			'An error occurred while processing the signin request'
+		),
 	},
 })
 
@@ -39,5 +43,19 @@ export const signup = createRoute({
 			'The validation error(s) for the signup request'
 		),
 		[HttpStatusCodes.CONFLICT]: jsonContent(NOT_FOUND_SCHEMA, 'User already exists'),
+	},
+})
+
+export const logout = createRoute({
+	path: `${path}/logout`,
+	method: 'post',
+	tags,
+	responses: {
+		[HttpStatusCodes.OK]: jsonContent(z.object({ message: z.string() }), 'Successfully logged out'),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(NOT_FOUND_SCHEMA, 'User not authenticated'),
+		[HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+			createErrorSchema(z.object({ message: z.string() })),
+			'An error occurred while processing the logout request'
+		),
 	},
 })
