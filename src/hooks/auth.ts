@@ -10,15 +10,14 @@ import { getCookie } from 'hono/cookie'
 import { createMiddleware } from 'hono/factory'
 
 export const authentication = createMiddleware<AppBindings>(async (c, next) => {
-	const sessionId = getCookie(c, SESSION_COOKIE_NAME) ?? null
-	console.log('middlearwe running')
-	console.log(sessionId)
-	if (!sessionId) {
+	const session_id = getCookie(c, SESSION_COOKIE_NAME) ?? null
+	c.var.logger.debug(`middleware/authentication: session_id=${session_id}`)
+	if (!session_id) {
 		c.set('user', null)
 		c.set('session', null)
 		return next()
 	}
-	const { session, user } = await validate_session_token(sessionId, c)
+	const { session, user } = await validate_session_token(session_id, c)
 	if (session && !c.req.path.startsWith('/auth')) {
 		const token = generate_session_token()
 		set_session_token_cookie(c, token, session.expires_at)
