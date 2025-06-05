@@ -3,7 +3,7 @@ import { categories, courses } from '..'
 
 const categories_relations = relations(categories, ({ many }) => {
 	return {
-		sessions: many(courses),
+		courses: many(courses),
 	}
 })
 
