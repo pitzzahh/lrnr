@@ -3,7 +3,7 @@ import { pgTable } from 'drizzle-orm/pg-core'
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
 
 const sessions = pgTable('sessions', (t) => ({
-	id: t.uuid().primaryKey().defaultRandom(),
+	id: t.text().primaryKey(),
 	user_id: t
 		.uuid()
 		.unique()
