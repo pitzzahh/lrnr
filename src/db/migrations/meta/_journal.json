@@ -50,6 +50,13 @@
       "when": 1749109424127,
       "tag": "0006_tough_hobgoblin",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1749114541899,
+      "tag": "0007_late_the_anarchist",
+      "breakpoints": true
     }
   ]
 }
