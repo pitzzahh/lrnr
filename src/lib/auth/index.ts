@@ -1,23 +1,26 @@
-import { eq } from 'drizzle-orm'
 import db from '@/db'
-import { sha256 } from '@oslojs/crypto/sha2'
 import { sessions, users } from '@/db/schema'
 import type { Sessions } from '@/db/schema/sessions'
 import type { Users } from '@/db/schema/users'
+import type { AppBindings } from '@/lib/types'
+import { sha256 } from '@oslojs/crypto/sha2'
 import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from '@oslojs/encoding'
+import { eq } from 'drizzle-orm'
+import type { Context } from 'hono'
 
 const SESSION_REFRESH_INTERVAL_MS = 1000 * 60 * 60 * 24 * 15
 const SESSION_MAX_DURATION_MS = SESSION_REFRESH_INTERVAL_MS * 2
+
 export const SESSION_COOKIE_NAME = 'session'
 
-export function generateSessionToken(): string {
+export function generate_session_token(): string {
 	const bytes = new Uint8Array(20)
 	crypto.getRandomValues(bytes)
 	const token = encodeBase32LowerCaseNoPadding(bytes)
 	return token
 }
 
-export async function createSession(token: string, user_id: string): Promise<Sessions> {
+export async function create_session(token: string, user_id: string): Promise<Sessions> {
 	const session_id = encodeHexLowerCase(sha256(new TextEncoder().encode(token)))
 	console.log('session_id at createSession', session_id)
 	const session: Sessions = {
@@ -29,20 +32,26 @@ export async function createSession(token: string, user_id: string): Promise<Ses
 	return session
 }
 
-export async function validateSessionToken(token: string): Promise<SessionValidationResult> {
-	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)))
-	console.log('at validateSessionToken', { token, sessionId })
-	const result = await db
+export async function validate_session_token(
+	token: string,
+	c: Context<AppBindings>
+): Promise<SessionValidationResult> {
+	const session_id = encodeHexLowerCase(sha256(new TextEncoder().encode(token)))
+	c.var.logger.debug('Validating session token', {
+		token,
+		session_id,
+	})
+	const [result] = await db
 		.select({ user: users, session: sessions })
 		.from(sessions)
 		.innerJoin(users, eq(sessions.user_id, users.id))
-		.where(eq(sessions.id, sessionId))
+		.where(eq(sessions.id, session_id))
 
-	if (result.length < 1) {
+	if (!result) {
 		return { session: null, user: null }
 	}
 
-	const { user, session } = result[0]
+	const { user, session } = result
 
 	if (Date.now() >= session.expires_at.getTime()) {
 		await db.delete(sessions).where(eq(sessions.id, session.id))
@@ -59,8 +68,8 @@ export async function validateSessionToken(token: string): Promise<SessionValida
 	return { session, user }
 }
 
-export async function invalidateSession(sessionId: string): Promise<void> {
-	await db.delete(sessions).where(eq(sessions.id, sessionId))
+export async function invalidateSession(session_id: string): Promise<void> {
+	await db.delete(sessions).where(eq(sessions.id, session_id))
 }
 
 export async function invalidateUserSession(user_id: string): Promise<void> {
@@ -70,3 +79,34 @@ export async function invalidateUserSession(user_id: string): Promise<void> {
 export type SessionValidationResult =
 	| { session: Sessions; user: Users }
 	| { session: null; user: null }
+
+export function setSessionTokenCookie(c: Context, token: string, expiresAt: Date) {
+	console.log('set cookie', process.env.NODE_ENV)
+	if (process.env.NODE_ENV === 'PROD') {
+		c.header(
+			'Set-Cookie',
+			`${SESSION_COOKIE_NAME}=${token}; HttpOnly; SameSite=Lax; Expires=${expiresAt.toUTCString()}; Path=/; Secure;`,
+			{ append: true }
+		)
+	} else {
+		c.header(
+			'Set-Cookie',
+			`${SESSION_COOKIE_NAME}=${token}; HttpOnly; SameSite=Lax; Expires=${expiresAt.toUTCString()}; Path=/`,
+			{ append: true }
+		)
+	}
+}
+
+export function deleteSessionTokenCookie(c: Context<AppBindings>): void {
+	if (process.env.NODE_ENV === 'PROD') {
+		c.header(
+			'Set-Cookie',
+			`${SESSION_COOKIE_NAME}=; HttpOnly; SameSite=Lax; Max-Age=0; Path=/; Secure;`,
+			{ append: true }
+		)
+	} else {
+		c.header('Set-Cookie', `${SESSION_COOKIE_NAME}=; HttpOnly; SameSite=Lax; Max-Age=0; Path=/`, {
+			append: true,
+		})
+	}
+}
