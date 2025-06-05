@@ -175,7 +175,7 @@ Most API endpoints require authentication. The following routes are public:
 
 ### Session Management
 
-- Sessions are valid for **30 days** by default
+- Sessions are valid for **15 days** by default
 - Sessions are automatically refreshed on API usage
 - Secure cookies are used in production with `HttpOnly` and `Secure` flags
 - Sessions are stored in the database for security and scalability
