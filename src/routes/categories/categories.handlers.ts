@@ -36,6 +36,10 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
 			HttpStatusCodes.UNAUTHORIZED
 		)
 	}
+	// Only admins and teachers can create categories
+	if (!['ADMIN', 'TEACHER'].includes(current_user.role)) {
+		return c.json({ message: HttpStatusPhrases.FORBIDDEN }, HttpStatusCodes.FORBIDDEN)
+	}
 	const category = c.req.valid('json')
 	const [inserted_category] = await db.insert(categories).values(category).returning()
 	return c.json(inserted_category, HttpStatusCodes.OK)
@@ -77,6 +81,10 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
 			},
 			HttpStatusCodes.UNAUTHORIZED
 		)
+	}
+	// Only admins and teachers can update categories
+	if (!['ADMIN', 'TEACHER'].includes(current_user.role)) {
+		return c.json({ message: HttpStatusPhrases.FORBIDDEN }, HttpStatusCodes.FORBIDDEN)
 	}
 	const { id } = c.req.valid('param')
 	const updates = c.req.valid('json')
@@ -127,6 +135,10 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
 			},
 			HttpStatusCodes.UNAUTHORIZED
 		)
+	}
+	// Only admins and teachers can update categories
+	if (!['ADMIN', 'TEACHER'].includes(current_user.role)) {
+		return c.json({ message: HttpStatusPhrases.FORBIDDEN }, HttpStatusCodes.FORBIDDEN)
 	}
 	const { id } = c.req.valid('param')
 	const [result] = await db.delete(categories).where(eq(categories.id, id)).returning()

@@ -41,6 +41,14 @@ export const create = createRoute({
 			NOT_FOUND_SCHEMA,
 			'Unauthorized access to category creation'
 		),
+		[HttpStatusCodes.FORBIDDEN]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Forbidden access to category creation (only admins and teachers can create categories)'
+		),
+		[HttpStatusCodes.CONFLICT]: jsonContent(
+			createErrorSchema(INSERT_CATEGORIES_SCHEMA),
+			'Conflict error, category with the same name already exists'
+		),
 	},
 })
 
@@ -84,6 +92,10 @@ export const patch = createRoute({
 			NOT_FOUND_SCHEMA,
 			'Unauthorized access to the category update'
 		),
+		[HttpStatusCodes.FORBIDDEN]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Forbidden access to category update (only admins and teachers can update categories)'
+		),
 	},
 })
 
@@ -104,6 +116,10 @@ export const remove = createRoute({
 		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
 			NOT_FOUND_SCHEMA,
 			'Unauthorized access to the category deletion'
+		),
+		[HttpStatusCodes.FORBIDDEN]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Forbidden access to category deletion (only admins and teachers can delete categories)'
 		),
 	},
 })
