@@ -11,7 +11,11 @@ import { eq } from 'drizzle-orm'
 import type { Context } from 'hono'
 import { deleteCookie, setCookie } from 'hono/cookie'
 
-const SESSION_REFRESH_INTERVAL_MS = 1000 * 60 * 60 * 24 * 15
+const MINUTES_MS = 1000 * 60
+const HOURS_MS = MINUTES_MS * 60
+const DAYS_MS = HOURS_MS * 24
+
+const SESSION_REFRESH_INTERVAL_MS = DAYS_MS * 15
 const SESSION_MAX_DURATION_MS = SESSION_REFRESH_INTERVAL_MS * 2
 
 export const SESSION_COOKIE_NAME = 'session'
