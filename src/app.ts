@@ -8,7 +8,7 @@ import llms from '@/routes/llms/llms.route'
 import users from '@/routes/users/users.index'
 const app = createApp()
 
-const routes = [index, llms, users, categories, courses, auth]
+const routes = [index, auth, users, categories, courses, llms]
 
 for (const route of routes) {
 	app.route('/', route)
