@@ -17,6 +17,10 @@ export const list = createRoute({
 	tags,
 	responses: {
 		[HttpStatusCodes.OK]: jsonContent(z.array(SELECT_COURSES_SCHEMA), 'The list of courses'),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Unauthorized access to courses'
+		),
 	},
 })
 
@@ -32,6 +36,10 @@ export const create = createRoute({
 		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
 			createErrorSchema(INSERT_COURSES_SCHEMA),
 			'The validation error(s) for the course creation request'
+		),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Unauthorized access to course creation'
 		),
 	},
 })
@@ -49,6 +57,10 @@ export const getOne = createRoute({
 		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
 			createErrorSchema(IdUUIDParamsSchema),
 			'Invalid id error'
+		),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Unauthorized access to the requested course'
 		),
 	},
 })
@@ -68,6 +80,10 @@ export const patch = createRoute({
 			createErrorSchema(PATCH_COURSES_SCHEMA).or(createErrorSchema(IdUUIDParamsSchema)),
 			'The validation error(s)'
 		),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Unauthorized access to the course update'
+		),
 	},
 })
 
@@ -84,6 +100,10 @@ export const remove = createRoute({
 		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
 			createErrorSchema(IdUUIDParamsSchema),
 			'Invalid id error'
+		),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Unauthorized access to the course deletion'
 		),
 	},
 })

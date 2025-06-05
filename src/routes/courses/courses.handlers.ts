@@ -8,16 +8,43 @@ import * as HttpStatusPhrases from 'stoker/http-status-phrases'
 import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } from './courses.routes'
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
-	return c.json(await db.query.courses.findMany())
+	const current_user = c.get('user')
+	if (!current_user) {
+		return c.json(
+			{
+				message: HttpStatusPhrases.UNAUTHORIZED,
+			},
+			HttpStatusCodes.UNAUTHORIZED
+		)
+	}
+	return c.json(await db.query.courses.findMany(), HttpStatusCodes.OK)
 }
 
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
+	const current_user = c.get('user')
+	if (!current_user) {
+		return c.json(
+			{
+				message: HttpStatusPhrases.UNAUTHORIZED,
+			},
+			HttpStatusCodes.UNAUTHORIZED
+		)
+	}
 	const course = c.req.valid('json')
 	const [inserted_course] = await db.insert(courses).values(course).returning()
 	return c.json(inserted_course, HttpStatusCodes.OK)
 }
 
 export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
+	const current_user = c.get('user')
+	if (!current_user) {
+		return c.json(
+			{
+				message: HttpStatusPhrases.UNAUTHORIZED,
+			},
+			HttpStatusCodes.UNAUTHORIZED
+		)
+	}
 	const { id } = c.req.valid('param')
 	const course = await db.query.courses.findFirst({
 		where(fields, operators) {
@@ -36,6 +63,15 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
 }
 
 export const patch: AppRouteHandler<PatchRoute> = async (c) => {
+	const current_user = c.get('user')
+	if (!current_user) {
+		return c.json(
+			{
+				message: HttpStatusPhrases.UNAUTHORIZED,
+			},
+			HttpStatusCodes.UNAUTHORIZED
+		)
+	}
 	const { id } = c.req.valid('param')
 	const updates = c.req.valid('json')
 
@@ -77,6 +113,15 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
 }
 
 export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
+	const current_user = c.get('user')
+	if (!current_user) {
+		return c.json(
+			{
+				message: HttpStatusPhrases.UNAUTHORIZED,
+			},
+			HttpStatusCodes.UNAUTHORIZED
+		)
+	}
 	const { id } = c.req.valid('param')
 	const [result] = await db.delete(courses).where(eq(courses.id, id)).returning()
 	if (!result) {
