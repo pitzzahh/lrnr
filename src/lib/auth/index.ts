@@ -263,10 +263,7 @@ export async function validate_api_key(
 				and(
 					eq(api_keys.key_hash, hash),
 					eq(api_keys.is_active, true),
-					or(
-						isNull(api_keys.expires_at),
-						gt(api_keys.expires_at, new Date())
-					)
+					or(isNull(api_keys.expires_at), gt(api_keys.expires_at, new Date()))
 				),
 			with: {
 				user: true,
@@ -279,10 +276,7 @@ export async function validate_api_key(
 		}
 
 		// Update last_used_at
-		await db
-			.update(api_keys)
-			.set({ last_used_at: new Date() })
-			.where(eq(api_keys.id, result.id))
+		await db.update(api_keys).set({ last_used_at: new Date() }).where(eq(api_keys.id, result.id))
 
 		c.var.logger.debug(`Valid API key found for user_id=${result.user.id}`)
 
@@ -305,12 +299,7 @@ export async function revoke_api_key(
 		const result = await db
 			.update(api_keys)
 			.set({ is_active: false })
-			.where(
-				and(
-					eq(api_keys.id, api_key_id),
-					eq(api_keys.user_id, user_id)
-				)
-			)
+			.where(and(eq(api_keys.id, api_key_id), eq(api_keys.user_id, user_id)))
 			.returning()
 
 		const success = result.length > 0
