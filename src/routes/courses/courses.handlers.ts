@@ -81,13 +81,23 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
 		)
 	}
 
-	// TODO: Check if user has access to this course
-	// TODO: Students should only see courses they're enrolled in (you'd need to check enrollments table)
-	// TODO: Teachers can see their own courses + admin can see all
 	if (current_user.role === 'STUDENT') {
-		// TODO: Add enrollment check here when you have enrollment logic
-		// TODO: const enrollment = await checkEnrollment(current_user.id, course.id)
-		// TODO: if (!enrollment) return forbidden
+		const user_enrollment = await db.query.enrollments.findFirst({
+			where(fields, operators) {
+				return operators.and(
+					operators.eq(fields.user_id, current_user.id),
+					operators.eq(fields.course_id, course.id)
+				)
+			},
+		})
+		if (!user_enrollment) {
+			return c.json(
+				{
+					message: HttpStatusPhrases.FORBIDDEN,
+				},
+				HttpStatusCodes.FORBIDDEN
+			)
+		}
 	} else if (current_user.role === 'TEACHER' && course.teacher_id !== current_user.id) {
 		return c.json({ message: HttpStatusPhrases.FORBIDDEN }, HttpStatusCodes.FORBIDDEN)
 	}
