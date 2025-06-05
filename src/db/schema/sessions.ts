@@ -20,17 +20,14 @@ const sessions = pgTable('sessions', (t) => ({
 export const SELECT_SESSIONS_SCHEMA = createSelectSchema(sessions)
 export const INSERT_SESSIONS_SCHEMA = createInsertSchema(sessions, {
 	user_id: (s) => s.user_id.min(1).max(500),
+}).required({
+	user_id: true,
+	expires_at: true,
 })
-	.required({
-		user_id: true,
-	})
-	.omit({
-		id: true,
-		expires_at: true,
-	})
 
 export const PATCH_SESSIONS_SCHEMA = INSERT_SESSIONS_SCHEMA.partial()
 
-export type Sessions = typeof sessions.$inferSelect
+export type Session = typeof sessions.$inferSelect
+export type InsertSession = typeof sessions.$inferInsert
 
 export default sessions

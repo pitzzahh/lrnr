@@ -1,7 +1,7 @@
 import db from '@/db'
 import { sessions, users } from '@/db/schema'
-import type { Sessions } from '@/db/schema/sessions'
-import type { Users } from '@/db/schema/users'
+import type { Session } from '@/db/schema/sessions'
+import type { User } from '@/db/schema/users'
 import type { AppBindings } from '@/lib/types'
 import { sha256 } from '@oslojs/crypto/sha2'
 import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from '@oslojs/encoding'
@@ -20,10 +20,10 @@ export function generate_session_token(): string {
 	return token
 }
 
-export async function create_session(token: string, user_id: string): Promise<Sessions> {
+export async function create_session(token: string, user_id: string): Promise<Session> {
 	const session_id = encodeHexLowerCase(sha256(new TextEncoder().encode(token)))
 	console.log('session_id at createSession', session_id)
-	const session: Sessions = {
+	const session: Session = {
 		id: session_id,
 		user_id,
 		expires_at: new Date(Date.now() + SESSION_MAX_DURATION_MS),
@@ -77,7 +77,7 @@ export async function invalidateUserSession(user_id: string): Promise<void> {
 }
 
 export type SessionValidationResult =
-	| { session: Sessions; user: Users }
+	| { session: Session; user: User }
 	| { session: null; user: null }
 
 export function setSessionTokenCookie(c: Context, token: string, expiresAt: Date) {

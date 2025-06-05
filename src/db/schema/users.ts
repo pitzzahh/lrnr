@@ -28,6 +28,7 @@ export const INSERT_USERS_SCHEMA = createInsertSchema(users, {
 
 export const PATCH_USERS_SCHEMA = INSERT_USERS_SCHEMA.partial()
 
-export type Users = typeof users.$inferSelect
+export type User = typeof users.$inferSelect
+export type InsertUser = typeof users.$inferInsert
 
 export default users
