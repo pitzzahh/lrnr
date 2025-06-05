@@ -96,7 +96,7 @@ export const patch = createRoute({
 			'Unauthorized to update this API key'
 		),
 		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-			createErrorSchema(PATCH_API_KEYS_SCHEMA),
+			createErrorSchema(PATCH_API_KEYS_SCHEMA).or(createErrorSchema(IdUUIDParamsSchema)),
 			'The validation error(s) for the API key update request'
 		),
 		[HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(

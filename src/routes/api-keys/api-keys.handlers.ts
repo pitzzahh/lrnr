@@ -53,13 +53,12 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
 		const { api_key, key } = await create_api_key(c, current_user.id, body.name, expires_at)
 
 		// Return the API key info plus the actual key (only time it's shown)
+		// Remove sensitive data using destructuring
+		const { key_hash, ...api_key_without_hash } = api_key
 		const response = {
-			...api_key,
+			...api_key_without_hash,
 			key, // Include the actual key in response
 		}
-
-		// Remove sensitive data
-		delete (response as any).key_hash
 
 		return c.json(response, HttpStatusCodes.CREATED)
 	} catch (error) {
@@ -120,6 +119,26 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
 	const { id } = c.req.valid('param')
 	const updates = c.req.valid('json')
 
+	// Check if any updates are provided
+	if (Object.keys(updates).length === 0) {
+		return c.json(
+			{
+				success: false,
+				error: {
+					issues: [
+						{
+							code: ZOD_ERROR_CODES.INVALID_UPDATES,
+							path: [] as (string | number)[],
+							message: ZOD_ERROR_MESSAGES.NO_UPDATES,
+						},
+					],
+					name: 'ZodError',
+				},
+			},
+			HttpStatusCodes.UNPROCESSABLE_ENTITY
+		)
+	}
+
 	try {
 		const [updatedApiKey] = await db
 			.update(api_keys)
@@ -139,9 +158,8 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
 			)
 		}
 
-		// Remove sensitive data
-		const response = { ...updatedApiKey }
-		delete (response as any).key_hash
+		// Remove sensitive data using destructuring
+		const { key_hash, ...response } = updatedApiKey
 
 		return c.json(response, HttpStatusCodes.OK)
 	} catch (error) {
@@ -153,10 +171,11 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
 						issues: [
 							{
 								code: ZOD_ERROR_CODES.CUSTOM,
-								path: ['name'],
+								path: ['name'] as (string | number)[],
 								message: ZOD_ERROR_MESSAGES.DUPLICATE_VALUE,
 							},
 						],
+						name: 'ZodError',
 					},
 				},
 				HttpStatusCodes.UNPROCESSABLE_ENTITY
