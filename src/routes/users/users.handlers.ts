@@ -9,7 +9,8 @@ import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } fro
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
 	const current_user = c.get('user')
-	if (!current_user) {
+	c.var.logger.debug(`users.handlers.list: current_user=${current_user ? current_user.id : 'null'}`)
+	if (!current_user || (current_user && current_user.role !== 'ADMIN')) {
 		return c.json(
 			{
 				message: HttpStatusPhrases.UNAUTHORIZED,
