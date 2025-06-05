@@ -43,6 +43,13 @@
       "when": 1749109184821,
       "tag": "0005_colossal_network",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1749109424127,
+      "tag": "0006_tough_hobgoblin",
+      "breakpoints": true
     }
   ]
 }
