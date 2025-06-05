@@ -21,6 +21,8 @@
 	},
 	"dependencies": {
 		"@hono/zod-openapi": "^0.19.8",
+		"@oslojs/crypto": "^1.0.1",
+		"@oslojs/encoding": "^1.1.0",
 		"@scalar/hono-api-reference": "^0.9.2",
 		"@scalar/openapi-to-markdown": "^0.2.6",
 		"dotenv": "^16.5.0",
