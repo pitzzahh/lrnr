@@ -1,11 +1,13 @@
 import { pgTable } from 'drizzle-orm/pg-core'
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
+import role_name from './enums/role-name'
 
 const users = pgTable('users', (t) => ({
 	id: t.uuid().primaryKey().defaultRandom(),
 	name: t.text().notNull(),
 	email: t.text().notNull().unique(),
 	password_hash: t.text().notNull(),
+	role: role_name().default('STUDENT'),
 	created_at: t.timestamp().defaultNow(),
 }))
 
