@@ -1,6 +1,6 @@
 import { pgTable } from 'drizzle-orm/pg-core'
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
-import { users, categories } from '.'
+import { categories, users } from '.'
 
 const courses = pgTable('courses', (t) => ({
 	id: t.uuid().primaryKey().defaultRandom(),

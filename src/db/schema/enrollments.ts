@@ -1,4 +1,4 @@
-import { users, courses } from '@/db/schema'
+import { courses, users } from '@/db/schema'
 import { pgTable } from 'drizzle-orm/pg-core'
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
 

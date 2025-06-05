@@ -17,10 +17,7 @@ export const list = createRoute({
 	tags,
 	responses: {
 		[HttpStatusCodes.OK]: jsonContent(z.array(SELECT_COURSES_SCHEMA), 'The list of courses'),
-		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
-			NOT_FOUND_SCHEMA,
-			'Unauthorized access to courses'
-		),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(NOT_FOUND_SCHEMA, 'Unauthorized access to courses'),
 	},
 })
 
