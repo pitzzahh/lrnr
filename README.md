@@ -1,29 +1,29 @@
 # LRNR - Learning Management System API
 
-A Learning Management System API built with Hono, Bun, and PostgreSQL. Features OpenAPI documentation, type-safe validation, and a clean architecture for educational platforms.
+A REST API for a learning management system built with Hono, Bun, and PostgreSQL.
 
 ## Features
 
 - RESTful API with OpenAPI 3.0 specification
-- **Session-based authentication** with secure cookie management
-- **Role-based access control** (Admin, Teacher, Student)
-- **User management** with password hashing and validation
-- Type-safe request/response validation with Zod
+- Session-based authentication with HTTP-only cookies
+- Role-based access control (Admin, Teacher, Student)
+- User, course, category, and enrollment management
+- Request/response validation with Zod schemas
 - PostgreSQL database with Drizzle ORM
-- Automatic API documentation with Scalar
-- Hot reload development server
-- Code formatting and linting with Biome
+- Interactive API documentation with Scalar
+- TypeScript for type safety
+- Code quality tools (Biome for linting and formatting)
 
 ## Technology Stack
 
 - **Runtime**: Bun
 - **Framework**: Hono
 - **Database**: PostgreSQL with Drizzle ORM
-- **Authentication**: Session-based with secure cookies
-- **Authorization**: Role-based access control (RBAC)
-- **Validation**: Zod
-- **Documentation**: OpenAPI 3.0 with Scalar
-- **Code Quality**: Biome
+- **Authentication**: Session-based with HTTP-only cookies
+- **Authorization**: Role-based access control
+- **Validation**: Zod schemas
+- **Documentation**: OpenAPI 3.0 with Scalar UI
+- **Code Quality**: Biome (linting and formatting)
 - **Language**: TypeScript
 
 ## Installation
@@ -46,10 +46,17 @@ cd lrnr
 bun install
 ```
 
-3. Configure environment variables:
+3. Set up your environment variables:
 ```bash
-cp .env.example .env
-# Edit .env with your database credentials
+# Create .env file with your configuration
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USER=your_username
+DATABASE_PASSWORD=your_password
+DATABASE_NAME=lrnr
+SESSION_SECRET=your-session-secret
+PORT=3000
+NODE_ENV=development
 ```
 
 4. Run database migrations:
@@ -57,23 +64,12 @@ cp .env.example .env
 bun run db:migrate
 ```
 
-5. (Optional) Seed the database with initial data:
-```bash
-bun run db:seed
-```
-
-6. Start the development server:
+5. Start the development server:
 ```bash
 bun run dev
 ```
 
-The API will be available at `http://localhost:3000` and interactive documentation at `http://localhost:3000/reference`.
-
-**First Steps:**
-1. Visit `http://localhost:3000/reference` to explore the API documentation
-2. Create your first admin user via `POST /auth/signup`
-3. Sign in to access protected endpoints
-4. Use the interactive documentation to test authenticated requests
+The API will be available at `http://localhost:3000` with interactive documentation at `http://localhost:3000/reference`.
 
 ## Development
 
@@ -91,11 +87,10 @@ The API will be available at `http://localhost:3000` and interactive documentati
 | `bun run db:migrate` | Apply database migrations |
 | `bun run db:push` | Push schema changes to database |
 | `bun run db:studio` | Open Drizzle Studio |
-| `bun run db:seed` | Seed database with initial data |
 
 ### Environment Configuration
 
-Create a `.env` file in the project root:
+The application requires the following environment variables:
 
 ```env
 # Server Configuration
@@ -110,7 +105,7 @@ DATABASE_PASSWORD=your_password
 DATABASE_NAME=lrnr
 
 # Authentication Configuration
-SESSION_SECRET=your-super-secret-session-key-here
+SESSION_SECRET=your-session-secret
 ```
 
 ### Project Structure
@@ -121,40 +116,49 @@ src/
 ├── index.ts            # Server entry point
 ├── env.ts              # Environment variable validation
 ├── db/
-│   ├── index.ts        # Database connection
+│   ├── index.ts        # Database connection setup
 │   ├── schema/         # Database schema definitions
 │   │   ├── users.ts    # User schema with roles
 │   │   ├── sessions.ts # Session management schema
-│   │   └── enums/      # Database enums (roles, etc.)
+│   │   ├── courses.ts  # Course schema
+│   │   ├── categories.ts # Category schema
+│   │   ├── enrollments.ts # Enrollment schema
+│   │   └── enums/      # Database enums (roles, status)
 │   └── migrations/     # Database migration files
 ├── hooks/
 │   ├── auth.ts         # Authentication middleware
-│   └── pino-logger.ts  # Request logging
+│   └── pino-logger.ts  # Request logging middleware
 ├── lib/
 │   ├── create-app.ts   # Hono app factory
 │   ├── configure-openapi.ts  # OpenAPI configuration
-│   ├── types.ts        # Shared type definitions
+│   ├── constants.ts    # Application constants
+│   ├── types.ts        # TypeScript type definitions
 │   └── auth/           # Authentication utilities
-│       └── index.ts    # Session management, password hashing
+│       └── index.ts    # Session management and password hashing
 └── routes/
+    ├── index.route.ts  # Root API route
     ├── auth/           # Authentication endpoints
-    │   ├── auth.routes.ts    # Login, signup, logout routes
-    │   └── auth.index.ts     # Auth route registration
     ├── users/          # User management endpoints
     ├── courses/        # Course management endpoints
     ├── categories/     # Category management endpoints
+    ├── enrollments/    # Enrollment management endpoints
     └── llms/           # LLM integration endpoints
 ```
 
 ## Authentication
 
-The API uses **session-based authentication** with secure HTTP-only cookies. Users are assigned roles that determine their access permissions.
+The API supports two authentication methods:
+
+1. **Session-based authentication** - Uses HTTP-only cookies, ideal for web applications
+2. **API key authentication** - Uses Bearer tokens, ideal for programmatic access
+
+Users have different roles that control access to various endpoints.
 
 ### User Roles
 
-- **STUDENT**: Default role, can view courses and enroll
-- **TEACHER**: Can create and manage courses, view enrolled students
-- **ADMIN**: Full system access, user management capabilities
+- **STUDENT**: Default role for new users
+- **TEACHER**: Can manage courses and view enrollments
+- **ADMIN**: Full access to all system resources
 
 ### Authentication Endpoints
 
@@ -163,6 +167,16 @@ The API uses **session-based authentication** with secure HTTP-only cookies. Use
 | `POST /auth/signup` | POST | Register a new user account |
 | `POST /auth/signin` | POST | Sign in with email and password |
 | `POST /auth/logout` | POST | Sign out and invalidate session |
+
+### API Key Management
+
+| Endpoint | Method | Description |
+|----------|---------|-------------|
+| `GET /api-keys` | GET | List user's API keys |
+| `POST /api-keys` | POST | Create a new API key |
+| `GET /api-keys/{id}` | GET | Get specific API key details |
+| `PATCH /api-keys/{id}` | PATCH | Update API key (name, expiration) |
+| `DELETE /api-keys/{id}` | DELETE | Revoke an API key |
 
 ### Protected Routes
 
@@ -175,26 +189,34 @@ Most API endpoints require authentication. The following routes are public:
 
 ### Session Management
 
-- Sessions are valid for **30 days** by default
-- Sessions are automatically refreshed on API usage
-- Secure cookies are used in production with `HttpOnly` and `Secure` flags
-- Sessions are stored in the database for security and scalability
+- Sessions are valid for 15 days by default
+- Sessions are automatically refreshed on API usage  
+- HTTP-only cookies are used for security
+- Session data is stored in the database
+
+### API Key Management
+
+- API keys are prefixed with `lrnr_` for identification
+- Keys can have optional expiration dates
+- Keys are hashed before storage (never stored in plain text)
+- Last usage time is tracked for each key
+- Keys can be revoked/deactivated at any time
 
 ### Usage Examples
 
-**User Registration:**
+**Register a new user:**
 ```bash
 curl -X POST http://localhost:3000/auth/signup \
   -H "Content-Type: application/json" \
   -d '{
     "name": "John Doe",
-    "email": "john@example.com",
+    "email": "john@example.com", 
     "password": "securepassword123",
     "password_confirmation": "securepassword123"
   }'
 ```
 
-**User Sign In:**
+**Sign in (session-based):**
 ```bash
 curl -X POST http://localhost:3000/auth/signin \
   -H "Content-Type: application/json" \
@@ -205,65 +227,69 @@ curl -X POST http://localhost:3000/auth/signin \
   }'
 ```
 
-**Accessing Protected Routes:**
+**Create an API key:**
 ```bash
-# Use the session cookie from sign in
+curl -X POST http://localhost:3000/api-keys \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{
+    "name": "My API Key"
+  }'
+```
+
+**Use session authentication:**
+```bash
 curl -X GET http://localhost:3000/users \
   -H "Content-Type: application/json" \
   -b cookies.txt
 ```
 
+**Use API key authentication:**
+```bash
+curl -X GET http://localhost:3000/users \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer lrnr_your_api_key_here"
+```
+
 ## Security
 
-The application implements several security best practices:
+The application implements standard security practices:
 
-- **Password Hashing**: Uses industry-standard hashing algorithms
-- **Session Security**: HttpOnly cookies prevent XSS attacks
-- **Input Validation**: All inputs validated with Zod schemas
-- **Role-Based Access**: Fine-grained permissions by user role
-- **Database Security**: Parameterized queries prevent SQL injection
-- **Environment Isolation**: Sensitive data stored in environment variables
+- Password hashing for user credentials
+- HTTP-only cookies to prevent XSS attacks
+- API key hashing (keys never stored in plain text)
+- Input validation using Zod schemas
+- Role-based access control for endpoints
+- Parameterized database queries
+- Environment variables for sensitive configuration
 
 ## API Documentation
 
-The API documentation is automatically generated from route definitions and available at:
+Interactive API documentation is available at:
 - `/doc` - OpenAPI JSON specification
-- `/reference` - Interactive Scalar UI documentation 
-- `/llms.md` - Markdown documentation for LLMs
+- `/reference` - Scalar UI for testing endpoints
 
-The interactive documentation at `/reference` includes:
-
-- Interactive API explorer with authentication support
-- Request/response schemas with role-based access indicators
-- Authentication requirements for each endpoint
-- Example requests and responses
-- User role and permission documentation
+The documentation includes request/response schemas, authentication requirements, and example requests.
 
 ## Troubleshooting
 
-### Common Authentication Issues
+### Common Issues
 
-**Session Cookie Not Being Set:**
-- Ensure `NODE_ENV` is properly configured in your `.env` file
-- Check that your client supports cookies (use `-c cookies.txt` with curl)
-- Verify the session cookie domain matches your request origin
+**Database Connection Problems:**
+- Verify PostgreSQL is running
+- Check database credentials in environment variables
+- Ensure database exists and is accessible
 
-**403 Unauthorized Errors:**
-- Confirm you're signed in and have a valid session
-- Check that your user role has permission for the requested endpoint
-- Verify the session hasn't expired (30-day default)
+**Authentication Issues:**
+- Check that cookies are being sent with requests
+- Verify session hasn't expired
+- Ensure proper authentication headers
 
-**Database Connection Issues:**
-- Ensure PostgreSQL is running and accessible
-- Verify database credentials in your `.env` file
-- Run `bun run db:migrate` to ensure schema is up to date
+### Development Notes
 
-### Development Tips
-
-- Use `bun run db:studio` to visually inspect your database
-- Check the browser's developer tools for session cookies
-- Monitor server logs for authentication middleware activity
-- Use the `/reference` endpoint to test authentication interactively
+- Use `bun run db:studio` to inspect database contents
+- Check server logs for detailed error information
+- Visit `/reference` for interactive API testing
 
 ## Contributing
 

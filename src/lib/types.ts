@@ -1,3 +1,4 @@
+import type { ApiKey } from '@/db/schema/api-keys'
 import type { Session } from '@/db/schema/sessions'
 import type { UserRedactedPassword } from '@/db/schema/users'
 import type { OpenAPIHono, RouteConfig, RouteHandler } from '@hono/zod-openapi'
@@ -8,6 +9,7 @@ export type AppBindings = {
 		logger: PinoLogger
 		user: UserRedactedPassword | null
 		session: Session | null
+		api_key?: ApiKey | null
 	}
 }
 export type AppOpenAPI = OpenAPIHono<AppBindings>

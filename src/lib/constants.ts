@@ -5,6 +5,7 @@ export const ZOD_ERROR_MESSAGES = {
 	REQUIRED: 'Required',
 	EXPECTED_NUMBER: 'Expected number, received NaN',
 	NO_UPDATES: 'No updates provided',
+	DUPLICATE_VALUE: 'Duplicate value, please choose a different value',
 }
 
 export const ZOD_ERROR_CODES = {
