@@ -4,10 +4,8 @@ import {
 	create_session,
 	deleteSessionTokenCookie,
 	generate_session_token,
-	hashPassword,
 	invalidateSession,
 	setSessionTokenCookie,
-	verifyPassword,
 } from '@/lib/auth'
 import { ZOD_ERROR_CODES } from '@/lib/constants'
 import type { AppRouteHandler } from '@/lib/types'
@@ -24,7 +22,7 @@ export const signin: AppRouteHandler<SigninRoute> = async (c) => {
 		},
 	})
 
-	if (!user || !(await verifyPassword(password, user.password_hash))) {
+	if (!user || !(await Bun.password.verify(password, user.password_hash))) {
 		return c.json(
 			{
 				message: HttpStatusPhrases.UNAUTHORIZED,
@@ -81,7 +79,7 @@ export const signup: AppRouteHandler<SignupRoute> = async (c) => {
 	}
 
 	try {
-		const password_hash = await hashPassword(password)
+		const password_hash = await Bun.password.hash(password)
 
 		const [newUser] = await db
 			.insert(users)
