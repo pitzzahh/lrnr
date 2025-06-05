@@ -35,5 +35,6 @@ export const PATCH_USERS_SCHEMA = INSERT_USERS_SCHEMA.partial()
 
 export type User = typeof users.$inferSelect
 export type InsertUser = typeof users.$inferInsert
+export type UserRedactedPassword = Omit<User, 'password_hash'>
 
 export default users
