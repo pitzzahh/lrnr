@@ -15,6 +15,7 @@ import type { LogoutRoute, SigninRoute, SignupRoute } from './auth.routes'
 
 export const signin: AppRouteHandler<SigninRoute> = async (c) => {
 	const { email, password } = c.req.valid('json')
+	c.var.logger.debug(`auth/signin: email=${email}, password=[REDACTED]`)
 
 	const user = await db.query.users.findFirst({
 		where(fields, operators) {
@@ -22,7 +23,18 @@ export const signin: AppRouteHandler<SigninRoute> = async (c) => {
 		},
 	})
 
-	if (!user || !(await Bun.password.verify(password, user.password_hash))) {
+	if (!user) {
+		return c.json(
+			{
+				message: HttpStatusPhrases.NOT_FOUND,
+			},
+			HttpStatusCodes.NOT_FOUND
+		)
+	}
+
+	const is_valid_password = await Bun.password.verify(password, user?.password_hash)
+	c.var.logger.debug(`auth/signin: is_valid_password=${is_valid_password}`)
+	if (!is_valid_password) {
 		return c.json(
 			{
 				message: HttpStatusPhrases.UNAUTHORIZED,
@@ -33,12 +45,13 @@ export const signin: AppRouteHandler<SigninRoute> = async (c) => {
 
 	try {
 		const token = generate_session_token()
-		const session = await create_session(token, user.id)
+		const session = await create_session(c, token, user.id)
 		set_session_token_cookie(c, token, session.expires_at)
-
-		// Return user without password_hash
-		const { password_hash: _, ...userWithoutPassword } = user
-		return c.json(userWithoutPassword, HttpStatusCodes.OK)
+		c.var.logger.debug(
+			`auth/signin: session cookie set for user_id=${user.id}, session_id=${session.id}`
+		)
+		const { password_hash: _, ...user_password_redacted } = user
+		return c.json(user_password_redacted, HttpStatusCodes.OK)
 	} catch {
 		return c.json(
 			{
@@ -68,7 +81,11 @@ export const signup: AppRouteHandler<SignupRoute> = async (c) => {
 			return operators.eq(fields.email, email)
 		},
 	})
-
+	c.var.logger.debug('Existing user check:', {
+		email,
+		exists: !!existingUser,
+		existingUser,
+	})
 	if (existingUser) {
 		return c.json(
 			{
