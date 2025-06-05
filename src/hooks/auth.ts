@@ -3,8 +3,8 @@ import {
 	delete_session_token_cookie,
 	generate_session_token,
 	set_session_token_cookie,
-	validate_session_token,
 	validate_api_key,
+	validate_session_token,
 } from '@/lib/auth'
 import type { AppBindings } from '@/lib/types'
 import { getCookie } from 'hono/cookie'
