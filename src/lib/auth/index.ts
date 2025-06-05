@@ -9,6 +9,7 @@ import { sha256 } from '@oslojs/crypto/sha2'
 import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from '@oslojs/encoding'
 import { eq } from 'drizzle-orm'
 import type { Context } from 'hono'
+import { deleteCookie, setCookie } from 'hono/cookie'
 
 const SESSION_REFRESH_INTERVAL_MS = 1000 * 60 * 60 * 24 * 15
 const SESSION_MAX_DURATION_MS = SESSION_REFRESH_INTERVAL_MS * 2
@@ -38,15 +39,42 @@ export async function create_session(
 	token: string,
 	user_id: string
 ): Promise<Session> {
-	const session_id = encodeHexLowerCase(sha256(new TextEncoder().encode(token)))
-	c.var.logger.debug(`Created session id=${session_id} for user_id=${user_id}`)
-	const session: Session = {
-		id: session_id,
-		user_id,
-		expires_at: new Date(Date.now() + SESSION_MAX_DURATION_MS),
+	try {
+		const session_id = encodeHexLowerCase(sha256(new TextEncoder().encode(token)))
+		c.var.logger.debug(`Creating session id=${session_id} for user_id=${user_id}`)
+
+		// Clean up any existing sessions for this user (due to unique constraint on user_id)
+		// Only delete expired sessions first, then delete any remaining ones
+		const existingSessions = await db.query.sessions.findMany({
+			where: (sessions, { eq }) => eq(sessions.user_id, user_id),
+		})
+
+		for (const existingSession of existingSessions) {
+			if (Date.now() >= existingSession.expires_at.getTime()) {
+				c.var.logger.debug(`Deleting expired session id=${existingSession.id}`)
+				await db.delete(sessions).where(eq(sessions.id, existingSession.id))
+			} else {
+				c.var.logger.debug(
+					`Deleting existing valid session id=${existingSession.id} to create new one`
+				)
+				await db.delete(sessions).where(eq(sessions.id, existingSession.id))
+			}
+		}
+
+		// Create new session
+		const session: Session = {
+			id: session_id,
+			user_id,
+			expires_at: new Date(Date.now() + SESSION_MAX_DURATION_MS),
+		}
+		await db.insert(sessions).values(session)
+		c.var.logger.debug(`Successfully created new session id=${session_id} for user_id=${user_id}`)
+		return session
+	} catch (error) {
+		const errorMessage = error instanceof Error ? error.message : String(error)
+		c.var.logger.error(`Failed to create session: ${errorMessage}`)
+		throw new Error('Failed to create session', { cause: error })
 	}
-	await db.insert(sessions).values(session)
-	return session
 }
 
 export async function validate_session_token(
@@ -98,35 +126,56 @@ export type SessionValidationResult =
 	| { session: null; user: null }
 
 export function set_session_token_cookie(c: Context<AppBindings>, token: string, expires_at: Date) {
+	console.log('set_session_token_cookie called with:', {
+		token,
+		expires_at: expires_at.toUTCString(),
+		NODE_ENV: env.NODE_ENV,
+	})
+
 	c.var.logger.debug(
 		`Setting session cookie for token=${token} expires_at=${expires_at.toUTCString()}`
 	)
-	if (env.NODE_ENV === 'production') {
-		c.header(
-			'Set-Cookie',
-			`${SESSION_COOKIE_NAME}=${token}; HttpOnly; SameSite=Lax; Expires=${expires_at.toUTCString()}; Path=/; Secure;`,
-			{ append: true }
-		)
-	} else {
-		c.header(
-			'Set-Cookie',
-			`${SESSION_COOKIE_NAME}=${token}; HttpOnly; SameSite=Lax; Expires=${expires_at.toUTCString()}; Path=/`,
-			{ append: true }
-		)
+
+	try {
+		if (env.NODE_ENV === 'production') {
+			setCookie(c, SESSION_COOKIE_NAME, token, {
+				httpOnly: true,
+				sameSite: 'Lax',
+				expires: expires_at,
+				path: '/',
+				secure: true,
+			})
+		} else {
+			setCookie(c, SESSION_COOKIE_NAME, token, {
+				httpOnly: true,
+				sameSite: 'Lax',
+				expires: expires_at,
+				path: '/',
+			})
+		}
+
+		console.log('Cookie set successfully using setCookie')
+		c.var.logger.debug('Session cookie set successfully')
+	} catch (error) {
+		console.error('Error setting cookie:', error)
+		c.var.logger.error('Failed to set session cookie:', error)
+		throw error
 	}
 }
 
 export function delete_session_token_cookie(c: Context<AppBindings>): void {
 	c.var.logger.debug('Deleting session token cookie')
-	if (env.NODE_ENV === 'production') {
-		c.header(
-			'Set-Cookie',
-			`${SESSION_COOKIE_NAME}=; HttpOnly; SameSite=Lax; Max-Age=0; Path=/; Secure;`,
-			{ append: true }
-		)
-	} else {
-		c.header('Set-Cookie', `${SESSION_COOKIE_NAME}=; HttpOnly; SameSite=Lax; Max-Age=0; Path=/`, {
-			append: true,
+	try {
+		deleteCookie(c, SESSION_COOKIE_NAME, {
+			httpOnly: true,
+			sameSite: 'Lax',
+			maxAge: 0,
+			path: '/',
+			...(env.NODE_ENV === 'production' && { secure: true }),
 		})
+		c.var.logger.debug('Session cookie deleted successfully')
+	} catch (error) {
+		c.var.logger.error('Failed to delete session cookie:', error)
+		throw error
 	}
 }
