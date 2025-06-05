@@ -147,7 +147,12 @@ src/
 
 ## Authentication
 
-The API uses session-based authentication with HTTP-only cookies. Users have different roles that control access to various endpoints.
+The API supports two authentication methods:
+
+1. **Session-based authentication** - Uses HTTP-only cookies, ideal for web applications
+2. **API key authentication** - Uses Bearer tokens, ideal for programmatic access
+
+Users have different roles that control access to various endpoints.
 
 ### User Roles
 
@@ -162,6 +167,16 @@ The API uses session-based authentication with HTTP-only cookies. Users have dif
 | `POST /auth/signup` | POST | Register a new user account |
 | `POST /auth/signin` | POST | Sign in with email and password |
 | `POST /auth/logout` | POST | Sign out and invalidate session |
+
+### API Key Management
+
+| Endpoint | Method | Description |
+|----------|---------|-------------|
+| `GET /api-keys` | GET | List user's API keys |
+| `POST /api-keys` | POST | Create a new API key |
+| `GET /api-keys/{id}` | GET | Get specific API key details |
+| `PATCH /api-keys/{id}` | PATCH | Update API key (name, expiration) |
+| `DELETE /api-keys/{id}` | DELETE | Revoke an API key |
 
 ### Protected Routes
 
@@ -179,6 +194,14 @@ Most API endpoints require authentication. The following routes are public:
 - HTTP-only cookies are used for security
 - Session data is stored in the database
 
+### API Key Management
+
+- API keys are prefixed with `lrnr_` for identification
+- Keys can have optional expiration dates
+- Keys are hashed before storage (never stored in plain text)
+- Last usage time is tracked for each key
+- Keys can be revoked/deactivated at any time
+
 ### Usage Examples
 
 **Register a new user:**
@@ -193,7 +216,7 @@ curl -X POST http://localhost:3000/auth/signup \
   }'
 ```
 
-**Sign in:**
+**Sign in (session-based):**
 ```bash
 curl -X POST http://localhost:3000/auth/signin \
   -H "Content-Type: application/json" \
@@ -204,11 +227,28 @@ curl -X POST http://localhost:3000/auth/signin \
   }'
 ```
 
-**Access protected endpoints:**
+**Create an API key:**
+```bash
+curl -X POST http://localhost:3000/api-keys \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{
+    "name": "My API Key"
+  }'
+```
+
+**Use session authentication:**
 ```bash
 curl -X GET http://localhost:3000/users \
   -H "Content-Type: application/json" \
   -b cookies.txt
+```
+
+**Use API key authentication:**
+```bash
+curl -X GET http://localhost:3000/users \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer lrnr_your_api_key_here"
 ```
 
 ## Security
@@ -217,6 +257,7 @@ The application implements standard security practices:
 
 - Password hashing for user credentials
 - HTTP-only cookies to prevent XSS attacks
+- API key hashing (keys never stored in plain text)
 - Input validation using Zod schemas
 - Role-based access control for endpoints
 - Parameterized database queries
