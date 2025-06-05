@@ -9,7 +9,7 @@ const tags = ['Authentication']
 const path = '/auth'
 
 export const signin = createRoute({
-	path,
+	path: `${path}/signin`,
 	method: 'post',
 	tags,
 	request: {
@@ -30,7 +30,7 @@ export const signin = createRoute({
 })
 
 export const signup = createRoute({
-	path,
+	path: `${path}/signup`,
 	method: 'post',
 	tags,
 	request: {
