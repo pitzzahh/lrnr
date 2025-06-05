@@ -13,7 +13,7 @@ const router = createRouter().openapi(
 				z.object({
 					message: z.string().describe(`A welcome message for the ${pj.name} API`),
 				}),
-				`${pj} API ${pj.version}`
+				`${pj.name} API ${pj.version}`
 			),
 		},
 	}),
