@@ -45,7 +45,12 @@ export const signin: AppRouteHandler<SigninRoute> = async (c) => {
 
 	try {
 		const token = generate_session_token()
+		c.var.logger.debug(`auth/signin: generated token=${token}`)
+
 		const session = await create_session(c, token, user.id)
+		c.var.logger.debug(`auth/signin: created session=${JSON.stringify(session)}`)
+
+		c.var.logger.debug('auth/signin: about to set session cookie')
 		set_session_token_cookie(c, token, session.expires_at)
 		c.var.logger.debug(
 			`auth/signin: session cookie set for user_id=${user.id}, session_id=${session.id}`
