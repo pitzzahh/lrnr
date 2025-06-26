@@ -38,6 +38,14 @@ export const create = createRoute({
 			NOT_FOUND_SCHEMA,
 			'Unauthorized access to course creation'
 		),
+		[HttpStatusCodes.FORBIDDEN]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Forbidden access to course creation (only admins and teachers allowed)'
+		),
+		[HttpStatusCodes.CONFLICT]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Conflict error (e.g., course with the same name already exists)'
+		),
 	},
 })
 
@@ -58,6 +66,10 @@ export const getOne = createRoute({
 		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
 			NOT_FOUND_SCHEMA,
 			'Unauthorized access to the requested course'
+		),
+		[HttpStatusCodes.FORBIDDEN]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Forbidden access to the requested course (e.g., user does not have permission)'
 		),
 	},
 })
@@ -81,6 +93,10 @@ export const patch = createRoute({
 			NOT_FOUND_SCHEMA,
 			'Unauthorized access to the course update'
 		),
+		[HttpStatusCodes.FORBIDDEN]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Forbidden access to the course update (only admins and teachers allowed)'
+		),
 	},
 })
 
@@ -101,6 +117,10 @@ export const remove = createRoute({
 		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
 			NOT_FOUND_SCHEMA,
 			'Unauthorized access to the course deletion'
+		),
+		[HttpStatusCodes.FORBIDDEN]: jsonContent(
+			NOT_FOUND_SCHEMA,
+			'Forbidden access to the course deletion (only admins and teachers allowed)'
 		),
 	},
 })

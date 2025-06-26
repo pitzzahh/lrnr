@@ -21,6 +21,10 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
 			HttpStatusCodes.UNAUTHORIZED
 		)
 	}
+
+	if (current_user.role !== 'ADMIN') {
+		return c.json({ message: HttpStatusPhrases.FORBIDDEN }, HttpStatusCodes.FORBIDDEN)
+	}
 	return c.json(await db.query.users.findMany(), HttpStatusCodes.OK)
 }
 
@@ -58,12 +62,18 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
 		)
 	}
 	const { id } = c.req.valid('param')
-	const user = await db.query.users.findFirst({
+
+	// Users can view their own profile, admins can view anyone
+	if (current_user.id !== id && current_user.role !== 'ADMIN') {
+		return c.json({ message: HttpStatusPhrases.FORBIDDEN }, HttpStatusCodes.FORBIDDEN)
+	}
+
+	const requested_user = await db.query.users.findFirst({
 		where(fields, operators) {
 			return operators.eq(fields.id, id)
 		},
 	})
-	if (!user) {
+	if (!requested_user) {
 		return c.json(
 			{
 				message: HttpStatusPhrases.NOT_FOUND,
@@ -71,7 +81,7 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
 			HttpStatusCodes.NOT_FOUND
 		)
 	}
-	return c.json(user, HttpStatusCodes.OK)
+	return c.json(requested_user, HttpStatusCodes.OK)
 }
 
 export const patch: AppRouteHandler<PatchRoute> = async (c) => {
@@ -90,6 +100,16 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
 	}
 	const { id } = c.req.valid('param')
 	const updates = c.req.valid('json')
+
+	// Users can only update their own profile, admins can update anyone
+	if (current_user.id !== id && current_user.role !== 'ADMIN') {
+		return c.json({ message: HttpStatusPhrases.FORBIDDEN }, HttpStatusCodes.FORBIDDEN)
+	}
+
+	// Prevent non-admins from changing roles
+	if (updates.role && current_user.role !== 'ADMIN') {
+		return c.json({ message: 'Only admins can change user roles' }, HttpStatusCodes.FORBIDDEN)
+	}
 
 	if (Object.keys(updates).length === 0) {
 		return c.json(
@@ -139,6 +159,58 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
 		)
 	}
 	const { id } = c.req.valid('param')
+
+	// Get the user to be deleted first
+	const user_to_delete = await db.query.users.findFirst({
+		where(fields, operators) {
+			return operators.eq(fields.id, id)
+		},
+	})
+
+	if (!user_to_delete) {
+		return c.json(
+			{
+				message: HttpStatusPhrases.NOT_FOUND,
+			},
+			HttpStatusCodes.NOT_FOUND
+		)
+	}
+
+	// Users can delete their own account
+	const is_own_account = current_user.id === id
+
+	// Role hierarchy check: prevent deletion of admin accounts
+	if (user_to_delete.role === 'ADMIN') {
+		return c.json({ message: 'Admin accounts cannot be deleted' }, HttpStatusCodes.FORBIDDEN)
+	}
+
+	// Students can only delete their own account
+	if (current_user.role === 'STUDENT' && !is_own_account) {
+		return c.json(
+			{ message: 'Students can only delete their own account' },
+			HttpStatusCodes.FORBIDDEN
+		)
+	}
+
+	// Students cannot delete teacher or admin accounts (already covered by own account check)
+	if (current_user.role === 'STUDENT' && user_to_delete.role !== 'STUDENT') {
+		return c.json(
+			{ message: 'Students cannot delete accounts with higher roles' },
+			HttpStatusCodes.FORBIDDEN
+		)
+	}
+
+	// Teachers can delete their own account or student accounts
+	if (current_user.role === 'TEACHER' && !is_own_account && user_to_delete.role !== 'STUDENT') {
+		return c.json(
+			{ message: 'Teachers can only delete student accounts or their own account' },
+			HttpStatusCodes.FORBIDDEN
+		)
+	}
+
+	// Admins can delete any account except other admin accounts (already covered above)
+	// No additional checks needed for admins
+
 	const [result] = await db.delete(users).where(eq(users.id, id)).returning()
 	if (!result) {
 		return c.json(

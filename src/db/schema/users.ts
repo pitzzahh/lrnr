@@ -7,7 +7,7 @@ const users = pgTable('users', (t) => ({
 	name: t.text().notNull(),
 	email: t.text().notNull().unique(),
 	password_hash: t.text().notNull(),
-	role: role_name().default('STUDENT'),
+	role: role_name().default('STUDENT').notNull(),
 	created_at: t.timestamp({ withTimezone: true, mode: 'date' }).defaultNow(),
 	updated_at: t
 		.timestamp({ withTimezone: true, mode: 'date' })
@@ -24,6 +24,7 @@ export const INSERT_USERS_SCHEMA = createInsertSchema(users, {
 	.required({
 		name: true,
 		email: true,
+		role: true,
 		password_hash: true,
 	})
 	.omit({
